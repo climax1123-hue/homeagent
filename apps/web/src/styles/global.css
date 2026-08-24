@@ -1,0 +1,56 @@
+:root {
+  font-family: Inter, Pretendard, "Noto Sans KR", system-ui, sans-serif;
+  color: #101820;
+  background: #f7f9fb;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.welcome {
+  width: min(100%, 720px);
+  padding: clamp(32px, 8vw, 80px);
+  background: white;
+  border: 1px solid #dce2e7;
+  border-radius: 24px;
+}
+
+.eyebrow {
+  color: #3d8dff;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+h1 {
+  margin: 12px 0;
+  font-size: clamp(48px, 10vw, 80px);
+}
+
+.welcome > p:not(.eyebrow) {
+  margin-bottom: 32px;
+  color: #59636e;
+  font-size: clamp(18px, 4vw, 22px);
+}

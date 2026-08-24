@@ -1,0 +1,24 @@
+{
+  "name": "@home/design-system",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "react": "latest"
+  },
+  "devDependencies": {
+    "@types/react": "latest",
+    "vitest": "latest"
+  },
+  "peerDependencies": {
+    "react": ">=19"
+  }
+}

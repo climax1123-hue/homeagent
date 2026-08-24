@@ -34,4 +34,3 @@ pnpm check
 - `services/analytics`: 향후 Python 분석 서비스가 들어갈 위치
 - `supabase`: 향후 migration, Edge Function, RLS 테스트가 들어갈 위치
 - `docs`: 제품·기능·아키텍처 명세
-

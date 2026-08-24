@@ -1,0 +1,9 @@
+node_modules
+dist
+coverage
+.ppt-build
+*.pptx
+*.png
+*.xlsx
+*.csv
+pnpm-lock.yaml
