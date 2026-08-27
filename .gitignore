@@ -20,3 +20,7 @@ Thumbs.db
 .supabase/
 supabase/.branches/
 supabase/.temp/
+
+# bkit-codex
+.bkit-codex/
+.codex/

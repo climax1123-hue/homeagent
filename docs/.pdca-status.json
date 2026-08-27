@@ -1,0 +1,963 @@
+{
+  "version": "2.0",
+  "lastUpdated": "2026-08-26T11:42:42.692Z",
+  "activeFeatures": [],
+  "primaryFeature": null,
+  "features": {
+    "auth": {
+      "phase": "archived",
+      "matchRate": 90,
+      "iterationCount": 2,
+      "documents": {},
+      "taskChain": [
+        {
+          "phase": "plan",
+          "status": "completed",
+          "createdAt": "2026-08-25T21:55:02.513Z",
+          "completedAt": "2026-08-26T00:17:29.472Z"
+        },
+        {
+          "phase": "design",
+          "status": "completed",
+          "createdAt": "2026-08-25T21:55:02.513Z",
+          "completedAt": "2026-08-26T02:22:39.802Z"
+        },
+        {
+          "phase": "do",
+          "status": "completed",
+          "createdAt": "2026-08-25T21:55:02.513Z",
+          "completedAt": "2026-08-26T03:49:42.607Z"
+        },
+        {
+          "phase": "check",
+          "status": "active",
+          "createdAt": "2026-08-25T21:55:02.513Z"
+        },
+        {
+          "phase": "report",
+          "status": "pending",
+          "createdAt": "2026-08-25T21:55:02.513Z"
+        }
+      ],
+      "timestamps": {
+        "started": "2026-08-25T21:55:02.537Z",
+        "lastUpdated": "2026-08-26T04:05:57.984Z"
+      },
+      "completedAt": "2026-08-26T04:05:57.894Z",
+      "archivedAt": "2026-08-26T04:24:09.420Z"
+    },
+    "household": {
+      "phase": "archived",
+      "matchRate": 93,
+      "iterationCount": 2,
+      "documents": {},
+      "taskChain": [
+        {
+          "phase": "plan",
+          "status": "completed",
+          "createdAt": "2026-08-26T00:30:03.840Z",
+          "completedAt": "2026-08-26T00:35:57.782Z"
+        },
+        {
+          "phase": "design",
+          "status": "completed",
+          "createdAt": "2026-08-26T00:30:03.840Z",
+          "completedAt": "2026-08-26T02:33:45.654Z"
+        },
+        {
+          "phase": "do",
+          "status": "completed",
+          "createdAt": "2026-08-26T00:30:03.840Z",
+          "completedAt": "2026-08-26T03:09:09.761Z"
+        },
+        {
+          "phase": "check",
+          "status": "active",
+          "createdAt": "2026-08-26T00:30:03.840Z"
+        },
+        {
+          "phase": "report",
+          "status": "pending",
+          "createdAt": "2026-08-26T00:30:03.840Z"
+        }
+      ],
+      "timestamps": {
+        "started": "2026-08-26T00:30:03.914Z",
+        "lastUpdated": "2026-08-26T04:18:20.078Z"
+      },
+      "completedAt": "2026-08-26T04:18:20.043Z",
+      "archivedAt": "2026-08-26T04:24:09.420Z"
+    },
+    "app-shell": {
+      "phase": "archived",
+      "matchRate": 91,
+      "iterationCount": 2,
+      "documents": {},
+      "taskChain": [
+        {
+          "phase": "plan",
+          "status": "completed",
+          "createdAt": "2026-08-26T04:44:02.056Z",
+          "completedAt": "2026-08-26T04:45:28.620Z"
+        },
+        {
+          "phase": "design",
+          "status": "completed",
+          "createdAt": "2026-08-26T04:44:02.056Z",
+          "completedAt": "2026-08-26T05:00:18.903Z"
+        },
+        {
+          "phase": "do",
+          "status": "completed",
+          "createdAt": "2026-08-26T04:44:02.056Z",
+          "completedAt": "2026-08-26T05:40:17.651Z"
+        },
+        {
+          "phase": "check",
+          "status": "completed",
+          "createdAt": "2026-08-26T04:44:02.056Z",
+          "completedAt": "2026-08-26T06:02:18.801Z"
+        },
+        {
+          "phase": "report",
+          "status": "completed",
+          "createdAt": "2026-08-26T04:44:02.056Z",
+          "completedAt": "2026-08-26T06:21:37.509Z"
+        }
+      ],
+      "timestamps": {
+        "started": "2026-08-26T04:44:02.072Z",
+        "lastUpdated": "2026-08-26T06:21:37.509Z"
+      },
+      "completedAt": "2026-08-26T06:21:37.302Z",
+      "archivedAt": "2026-08-26T06:24:00.000Z"
+    },
+    "calendar-core": {
+      "phase": "archived",
+      "matchRate": 92,
+      "iterationCount": 1,
+      "documents": {},
+      "taskChain": [
+        {
+          "phase": "plan",
+          "status": "completed",
+          "createdAt": "2026-08-26T06:44:20.135Z",
+          "completedAt": "2026-08-26T06:45:16.419Z"
+        },
+        {
+          "phase": "design",
+          "status": "completed",
+          "createdAt": "2026-08-26T06:44:20.135Z",
+          "completedAt": "2026-08-26T06:46:38.304Z"
+        },
+        {
+          "phase": "do",
+          "status": "completed",
+          "createdAt": "2026-08-26T06:44:20.135Z",
+          "completedAt": "2026-08-26T06:58:09.145Z"
+        },
+        {
+          "phase": "check",
+          "status": "completed",
+          "createdAt": "2026-08-26T06:44:20.135Z",
+          "completedAt": "2026-08-26T06:59:09.349Z"
+        },
+        {
+          "phase": "report",
+          "status": "completed",
+          "createdAt": "2026-08-26T06:44:20.135Z",
+          "completedAt": "2026-08-26T06:59:46.735Z"
+        }
+      ],
+      "timestamps": {
+        "started": "2026-08-26T06:44:20.252Z",
+        "lastUpdated": "2026-08-26T06:59:46.735Z"
+      },
+      "completedAt": "2026-08-26T06:59:46.678Z",
+      "archivedAt": "2026-08-26T11:45:00.000Z"
+    },
+    "calendar-categories": {
+      "phase": "archived",
+      "matchRate": 96,
+      "iterationCount": 1,
+      "documents": {},
+      "taskChain": [
+        {
+          "phase": "plan",
+          "status": "completed",
+          "createdAt": "2026-08-26T07:54:35.512Z",
+          "completedAt": "2026-08-26T07:54:58.065Z"
+        },
+        {
+          "phase": "design",
+          "status": "completed",
+          "createdAt": "2026-08-26T07:54:35.512Z",
+          "completedAt": "2026-08-26T07:55:22.624Z"
+        },
+        {
+          "phase": "do",
+          "status": "completed",
+          "createdAt": "2026-08-26T07:54:35.512Z",
+          "completedAt": "2026-08-26T11:00:41.888Z"
+        },
+        {
+          "phase": "check",
+          "status": "completed",
+          "createdAt": "2026-08-26T07:54:35.512Z",
+          "completedAt": "2026-08-26T11:01:03.185Z"
+        },
+        {
+          "phase": "report",
+          "status": "completed",
+          "createdAt": "2026-08-26T07:54:35.512Z",
+          "completedAt": "2026-08-26T11:01:20.544Z"
+        }
+      ],
+      "timestamps": {
+        "started": "2026-08-26T07:54:35.654Z",
+        "lastUpdated": "2026-08-26T11:01:20.544Z"
+      },
+      "completedAt": "2026-08-26T11:01:20.467Z",
+      "archivedAt": "2026-08-26T11:45:00.000Z"
+    },
+    "calendar-google-sync": {
+      "phase": "archived",
+      "matchRate": 91,
+      "iterationCount": 1,
+      "documents": {},
+      "taskChain": [
+        {
+          "phase": "plan",
+          "status": "completed",
+          "createdAt": "2026-08-26T11:02:53.629Z",
+          "completedAt": "2026-08-26T11:03:28.382Z"
+        },
+        {
+          "phase": "design",
+          "status": "completed",
+          "createdAt": "2026-08-26T11:02:53.629Z",
+          "completedAt": "2026-08-26T11:03:56.557Z"
+        },
+        {
+          "phase": "do",
+          "status": "completed",
+          "createdAt": "2026-08-26T11:02:53.629Z",
+          "completedAt": "2026-08-26T11:10:42.887Z"
+        },
+        {
+          "phase": "check",
+          "status": "completed",
+          "createdAt": "2026-08-26T11:02:53.629Z",
+          "completedAt": "2026-08-26T11:10:46.761Z"
+        },
+        {
+          "phase": "report",
+          "status": "completed",
+          "createdAt": "2026-08-26T11:02:53.629Z",
+          "completedAt": "2026-08-26T11:11:00.221Z"
+        }
+      ],
+      "timestamps": {
+        "started": "2026-08-26T11:02:53.679Z",
+        "lastUpdated": "2026-08-26T11:11:00.222Z"
+      },
+      "completedAt": "2026-08-26T11:11:00.115Z",
+      "archivedAt": "2026-08-26T11:45:00.000Z"
+    },
+    "calendar-notifications": {
+      "phase": "archived",
+      "matchRate": 90,
+      "iterationCount": 1,
+      "documents": {},
+      "taskChain": [
+        {
+          "phase": "plan",
+          "status": "completed",
+          "createdAt": "2026-08-26T11:11:17.289Z",
+          "completedAt": "2026-08-26T11:11:34.475Z"
+        },
+        {
+          "phase": "design",
+          "status": "completed",
+          "createdAt": "2026-08-26T11:11:17.289Z",
+          "completedAt": "2026-08-26T11:11:56.547Z"
+        },
+        {
+          "phase": "do",
+          "status": "completed",
+          "createdAt": "2026-08-26T11:11:17.289Z",
+          "completedAt": "2026-08-26T11:20:00.632Z"
+        },
+        {
+          "phase": "check",
+          "status": "completed",
+          "createdAt": "2026-08-26T11:11:17.289Z",
+          "completedAt": "2026-08-26T11:20:00.792Z"
+        },
+        {
+          "phase": "report",
+          "status": "completed",
+          "createdAt": "2026-08-26T11:11:17.289Z",
+          "completedAt": "2026-08-26T11:20:17.638Z"
+        }
+      ],
+      "timestamps": {
+        "started": "2026-08-26T11:11:17.323Z",
+        "lastUpdated": "2026-08-26T11:20:17.638Z"
+      },
+      "completedAt": "2026-08-26T11:20:17.586Z",
+      "archivedAt": "2026-08-26T11:45:00.000Z"
+    },
+    "calendar-occurrence-exceptions": {
+      "phase": "archived",
+      "matchRate": 96,
+      "iterationCount": 1,
+      "documents": {},
+      "taskChain": [
+        {
+          "phase": "plan",
+          "status": "completed",
+          "createdAt": "2026-08-26T11:21:22.967Z",
+          "completedAt": "2026-08-26T11:21:41.443Z"
+        },
+        {
+          "phase": "design",
+          "status": "completed",
+          "createdAt": "2026-08-26T11:21:22.967Z",
+          "completedAt": "2026-08-26T11:22:18.310Z"
+        },
+        {
+          "phase": "do",
+          "status": "completed",
+          "createdAt": "2026-08-26T11:21:22.967Z",
+          "completedAt": "2026-08-26T11:42:42.665Z"
+        },
+        {
+          "phase": "check",
+          "status": "completed",
+          "createdAt": "2026-08-26T11:21:22.967Z",
+          "completedAt": "2026-08-26T11:42:42.665Z"
+        },
+        {
+          "phase": "report",
+          "status": "completed",
+          "createdAt": "2026-08-26T11:21:22.967Z",
+          "completedAt": "2026-08-26T11:42:42.665Z"
+        }
+      ],
+      "timestamps": {
+        "started": "2026-08-26T11:21:22.988Z",
+        "lastUpdated": "2026-08-26T11:42:42.692Z"
+      },
+      "completedAt": "2026-08-26T11:42:42.665Z",
+      "archivedAt": "2026-08-26T11:45:00.000Z"
+    }
+  },
+  "pipeline": {
+    "currentPhase": 1,
+    "level": "Starter",
+    "phaseHistory": []
+  },
+  "session": {
+    "startedAt": "2026-08-25T21:55:02.505Z",
+    "onboardingCompleted": false,
+    "lastActivity": "2026-08-26T11:42:42.692Z"
+  },
+  "history": [
+    {
+      "feature": "auth",
+      "from": "plan",
+      "to": "design",
+      "timestamp": "2026-08-26T00:17:29.450Z"
+    },
+    {
+      "feature": "auth",
+      "action": "phase_complete",
+      "phase": "plan",
+      "nextPhase": "design",
+      "timestamp": "2026-08-26T00:17:29.452Z"
+    },
+    {
+      "feature": "household",
+      "from": "plan",
+      "to": "design",
+      "timestamp": "2026-08-26T00:35:57.733Z"
+    },
+    {
+      "feature": "household",
+      "action": "phase_complete",
+      "phase": "plan",
+      "nextPhase": "design",
+      "timestamp": "2026-08-26T00:35:57.736Z"
+    },
+    {
+      "feature": "auth",
+      "from": "design",
+      "to": "design",
+      "timestamp": "2026-08-26T02:15:04.330Z"
+    },
+    {
+      "feature": "auth",
+      "from": "design",
+      "to": "do",
+      "timestamp": "2026-08-26T02:22:39.584Z"
+    },
+    {
+      "feature": "auth",
+      "action": "phase_complete",
+      "phase": "design",
+      "nextPhase": "do",
+      "timestamp": "2026-08-26T02:22:39.588Z"
+    },
+    {
+      "feature": "household",
+      "from": "design",
+      "to": "design",
+      "timestamp": "2026-08-26T02:24:41.377Z"
+    },
+    {
+      "feature": "household",
+      "from": "design",
+      "to": "do",
+      "timestamp": "2026-08-26T02:33:45.613Z"
+    },
+    {
+      "feature": "household",
+      "action": "phase_complete",
+      "phase": "design",
+      "nextPhase": "do",
+      "timestamp": "2026-08-26T02:33:45.615Z"
+    },
+    {
+      "feature": "household",
+      "from": "do",
+      "to": "check",
+      "timestamp": "2026-08-26T03:09:09.734Z"
+    },
+    {
+      "feature": "household",
+      "action": "phase_complete",
+      "phase": "do",
+      "nextPhase": "check",
+      "timestamp": "2026-08-26T03:09:09.735Z"
+    },
+    {
+      "feature": "auth",
+      "from": "do",
+      "to": "check",
+      "timestamp": "2026-08-26T03:49:42.489Z"
+    },
+    {
+      "feature": "auth",
+      "action": "phase_complete",
+      "phase": "do",
+      "nextPhase": "check",
+      "timestamp": "2026-08-26T03:49:42.507Z"
+    },
+    {
+      "feature": "auth",
+      "from": "check",
+      "to": "report",
+      "timestamp": "2026-08-26T04:03:59.985Z"
+    },
+    {
+      "feature": "auth",
+      "action": "phase_complete",
+      "phase": "act",
+      "nextPhase": "report",
+      "timestamp": "2026-08-26T04:03:59.994Z"
+    },
+    {
+      "feature": "auth",
+      "action": "phase_complete",
+      "phase": "report",
+      "nextPhase": "completed",
+      "timestamp": "2026-08-26T04:05:57.901Z"
+    },
+    {
+      "feature": "household",
+      "from": "check",
+      "to": "report",
+      "timestamp": "2026-08-26T04:16:56.976Z"
+    },
+    {
+      "feature": "household",
+      "action": "phase_complete",
+      "phase": "act",
+      "nextPhase": "report",
+      "timestamp": "2026-08-26T04:16:56.978Z"
+    },
+    {
+      "feature": "household",
+      "action": "phase_complete",
+      "phase": "report",
+      "nextPhase": "completed",
+      "timestamp": "2026-08-26T04:18:20.044Z"
+    },
+    {
+      "feature": "auth",
+      "action": "archive",
+      "timestamp": "2026-08-26T04:24:09.420Z"
+    },
+    {
+      "feature": "household",
+      "action": "archive",
+      "timestamp": "2026-08-26T04:24:09.420Z"
+    },
+    {
+      "feature": "app-shell",
+      "from": "plan",
+      "to": "design",
+      "timestamp": "2026-08-26T04:45:28.597Z"
+    },
+    {
+      "feature": "app-shell",
+      "action": "phase_complete",
+      "phase": "plan",
+      "nextPhase": "design",
+      "timestamp": "2026-08-26T04:45:28.599Z"
+    },
+    {
+      "feature": "app-shell",
+      "from": "design",
+      "to": "design",
+      "timestamp": "2026-08-26T04:57:29.513Z"
+    },
+    {
+      "feature": "app-shell",
+      "from": "design",
+      "to": "do",
+      "timestamp": "2026-08-26T05:00:18.762Z"
+    },
+    {
+      "feature": "app-shell",
+      "action": "phase_complete",
+      "phase": "design",
+      "nextPhase": "do",
+      "timestamp": "2026-08-26T05:00:18.774Z"
+    },
+    {
+      "feature": "app-shell",
+      "from": "do",
+      "to": "check",
+      "timestamp": "2026-08-26T05:40:17.415Z"
+    },
+    {
+      "feature": "app-shell",
+      "action": "phase_complete",
+      "phase": "do",
+      "nextPhase": "check",
+      "timestamp": "2026-08-26T05:40:17.448Z"
+    },
+    {
+      "feature": "app-shell",
+      "from": "check",
+      "to": "act",
+      "timestamp": "2026-08-26T06:02:18.568Z"
+    },
+    {
+      "feature": "app-shell",
+      "action": "phase_complete",
+      "phase": "check",
+      "nextPhase": "act",
+      "timestamp": "2026-08-26T06:02:18.582Z"
+    },
+    {
+      "feature": "app-shell",
+      "from": "check",
+      "to": "report",
+      "timestamp": "2026-08-26T06:18:33.994Z"
+    },
+    {
+      "feature": "app-shell",
+      "action": "phase_complete",
+      "phase": "act",
+      "nextPhase": "report",
+      "timestamp": "2026-08-26T06:18:34.008Z"
+    },
+    {
+      "feature": "app-shell",
+      "action": "phase_complete",
+      "phase": "report",
+      "nextPhase": "completed",
+      "timestamp": "2026-08-26T06:21:37.314Z"
+    },
+    {
+      "feature": "calendar-core",
+      "from": "plan",
+      "to": "design",
+      "timestamp": "2026-08-26T06:45:16.175Z"
+    },
+    {
+      "feature": "calendar-core",
+      "action": "phase_complete",
+      "phase": "plan",
+      "nextPhase": "design",
+      "timestamp": "2026-08-26T06:45:16.193Z"
+    },
+    {
+      "feature": "calendar-core",
+      "from": "design",
+      "to": "design",
+      "timestamp": "2026-08-26T06:45:16.701Z"
+    },
+    {
+      "feature": "calendar-core",
+      "from": "design",
+      "to": "do",
+      "timestamp": "2026-08-26T06:46:37.997Z"
+    },
+    {
+      "feature": "calendar-core",
+      "action": "phase_complete",
+      "phase": "design",
+      "nextPhase": "do",
+      "timestamp": "2026-08-26T06:46:38.053Z"
+    },
+    {
+      "feature": "calendar-core",
+      "from": "do",
+      "to": "check",
+      "timestamp": "2026-08-26T06:58:09.110Z"
+    },
+    {
+      "feature": "calendar-core",
+      "action": "phase_complete",
+      "phase": "do",
+      "nextPhase": "check",
+      "timestamp": "2026-08-26T06:58:09.112Z"
+    },
+    {
+      "feature": "calendar-core",
+      "from": "check",
+      "to": "act",
+      "timestamp": "2026-08-26T06:59:09.244Z"
+    },
+    {
+      "feature": "calendar-core",
+      "action": "phase_complete",
+      "phase": "check",
+      "nextPhase": "act",
+      "timestamp": "2026-08-26T06:59:09.253Z"
+    },
+    {
+      "feature": "calendar-core",
+      "from": "act",
+      "to": "report",
+      "timestamp": "2026-08-26T06:59:12.845Z"
+    },
+    {
+      "feature": "calendar-core",
+      "action": "phase_complete",
+      "phase": "act",
+      "nextPhase": "report",
+      "timestamp": "2026-08-26T06:59:12.859Z"
+    },
+    {
+      "feature": "calendar-core",
+      "action": "phase_complete",
+      "phase": "report",
+      "nextPhase": "completed",
+      "timestamp": "2026-08-26T06:59:46.683Z"
+    },
+    {
+      "feature": "calendar-categories",
+      "from": "plan",
+      "to": "design",
+      "timestamp": "2026-08-26T07:54:57.911Z"
+    },
+    {
+      "feature": "calendar-categories",
+      "action": "phase_complete",
+      "phase": "plan",
+      "nextPhase": "design",
+      "timestamp": "2026-08-26T07:54:57.923Z"
+    },
+    {
+      "feature": "calendar-categories",
+      "from": "design",
+      "to": "design",
+      "timestamp": "2026-08-26T07:54:58.349Z"
+    },
+    {
+      "feature": "calendar-categories",
+      "from": "design",
+      "to": "do",
+      "timestamp": "2026-08-26T07:55:22.416Z"
+    },
+    {
+      "feature": "calendar-categories",
+      "action": "phase_complete",
+      "phase": "design",
+      "nextPhase": "do",
+      "timestamp": "2026-08-26T07:55:22.431Z"
+    },
+    {
+      "feature": "calendar-categories",
+      "from": "do",
+      "to": "check",
+      "timestamp": "2026-08-26T11:00:41.813Z"
+    },
+    {
+      "feature": "calendar-categories",
+      "action": "phase_complete",
+      "phase": "do",
+      "nextPhase": "check",
+      "timestamp": "2026-08-26T11:00:41.824Z"
+    },
+    {
+      "feature": "calendar-categories",
+      "from": "check",
+      "to": "act",
+      "timestamp": "2026-08-26T11:01:03.108Z"
+    },
+    {
+      "feature": "calendar-categories",
+      "action": "phase_complete",
+      "phase": "check",
+      "nextPhase": "act",
+      "timestamp": "2026-08-26T11:01:03.114Z"
+    },
+    {
+      "feature": "calendar-categories",
+      "from": "act",
+      "to": "report",
+      "timestamp": "2026-08-26T11:01:03.278Z"
+    },
+    {
+      "feature": "calendar-categories",
+      "action": "phase_complete",
+      "phase": "act",
+      "nextPhase": "report",
+      "timestamp": "2026-08-26T11:01:03.282Z"
+    },
+    {
+      "feature": "calendar-categories",
+      "action": "phase_complete",
+      "phase": "report",
+      "nextPhase": "completed",
+      "timestamp": "2026-08-26T11:01:20.472Z"
+    },
+    {
+      "feature": "calendar-google-sync",
+      "from": "plan",
+      "to": "design",
+      "timestamp": "2026-08-26T11:03:28.296Z"
+    },
+    {
+      "feature": "calendar-google-sync",
+      "action": "phase_complete",
+      "phase": "plan",
+      "nextPhase": "design",
+      "timestamp": "2026-08-26T11:03:28.299Z"
+    },
+    {
+      "feature": "calendar-google-sync",
+      "from": "design",
+      "to": "design",
+      "timestamp": "2026-08-26T11:03:28.462Z"
+    },
+    {
+      "feature": "calendar-google-sync",
+      "from": "design",
+      "to": "do",
+      "timestamp": "2026-08-26T11:03:56.487Z"
+    },
+    {
+      "feature": "calendar-google-sync",
+      "action": "phase_complete",
+      "phase": "design",
+      "nextPhase": "do",
+      "timestamp": "2026-08-26T11:03:56.489Z"
+    },
+    {
+      "feature": "calendar-google-sync",
+      "from": "do",
+      "to": "check",
+      "timestamp": "2026-08-26T11:10:42.807Z"
+    },
+    {
+      "feature": "calendar-google-sync",
+      "action": "phase_complete",
+      "phase": "do",
+      "nextPhase": "check",
+      "timestamp": "2026-08-26T11:10:42.811Z"
+    },
+    {
+      "feature": "calendar-google-sync",
+      "from": "check",
+      "to": "act",
+      "timestamp": "2026-08-26T11:10:46.704Z"
+    },
+    {
+      "feature": "calendar-google-sync",
+      "action": "phase_complete",
+      "phase": "check",
+      "nextPhase": "act",
+      "timestamp": "2026-08-26T11:10:46.709Z"
+    },
+    {
+      "feature": "calendar-google-sync",
+      "from": "act",
+      "to": "report",
+      "timestamp": "2026-08-26T11:10:46.846Z"
+    },
+    {
+      "feature": "calendar-google-sync",
+      "action": "phase_complete",
+      "phase": "act",
+      "nextPhase": "report",
+      "timestamp": "2026-08-26T11:10:46.850Z"
+    },
+    {
+      "feature": "calendar-google-sync",
+      "action": "phase_complete",
+      "phase": "report",
+      "nextPhase": "completed",
+      "timestamp": "2026-08-26T11:11:00.117Z"
+    },
+    {
+      "feature": "calendar-notifications",
+      "from": "plan",
+      "to": "design",
+      "timestamp": "2026-08-26T11:11:34.396Z"
+    },
+    {
+      "feature": "calendar-notifications",
+      "action": "phase_complete",
+      "phase": "plan",
+      "nextPhase": "design",
+      "timestamp": "2026-08-26T11:11:34.399Z"
+    },
+    {
+      "feature": "calendar-notifications",
+      "from": "design",
+      "to": "design",
+      "timestamp": "2026-08-26T11:11:34.568Z"
+    },
+    {
+      "feature": "calendar-notifications",
+      "from": "design",
+      "to": "do",
+      "timestamp": "2026-08-26T11:11:56.468Z"
+    },
+    {
+      "feature": "calendar-notifications",
+      "action": "phase_complete",
+      "phase": "design",
+      "nextPhase": "do",
+      "timestamp": "2026-08-26T11:11:56.472Z"
+    },
+    {
+      "feature": "calendar-notifications",
+      "from": "do",
+      "to": "check",
+      "timestamp": "2026-08-26T11:20:00.561Z"
+    },
+    {
+      "feature": "calendar-notifications",
+      "action": "phase_complete",
+      "phase": "do",
+      "nextPhase": "check",
+      "timestamp": "2026-08-26T11:20:00.564Z"
+    },
+    {
+      "feature": "calendar-notifications",
+      "from": "check",
+      "to": "act",
+      "timestamp": "2026-08-26T11:20:00.741Z"
+    },
+    {
+      "feature": "calendar-notifications",
+      "action": "phase_complete",
+      "phase": "check",
+      "nextPhase": "act",
+      "timestamp": "2026-08-26T11:20:00.744Z"
+    },
+    {
+      "feature": "calendar-notifications",
+      "from": "act",
+      "to": "report",
+      "timestamp": "2026-08-26T11:20:00.841Z"
+    },
+    {
+      "feature": "calendar-notifications",
+      "action": "phase_complete",
+      "phase": "act",
+      "nextPhase": "report",
+      "timestamp": "2026-08-26T11:20:00.843Z"
+    },
+    {
+      "feature": "calendar-notifications",
+      "action": "phase_complete",
+      "phase": "report",
+      "nextPhase": "completed",
+      "timestamp": "2026-08-26T11:20:17.588Z"
+    },
+    {
+      "feature": "calendar-occurrence-exceptions",
+      "from": "plan",
+      "to": "design",
+      "timestamp": "2026-08-26T11:21:41.391Z"
+    },
+    {
+      "feature": "calendar-occurrence-exceptions",
+      "action": "phase_complete",
+      "phase": "plan",
+      "nextPhase": "design",
+      "timestamp": "2026-08-26T11:21:41.393Z"
+    },
+    {
+      "feature": "calendar-occurrence-exceptions",
+      "from": "design",
+      "to": "design",
+      "timestamp": "2026-08-26T11:21:41.502Z"
+    },
+    {
+      "feature": "calendar-occurrence-exceptions",
+      "from": "design",
+      "to": "do",
+      "timestamp": "2026-08-26T11:22:18.253Z"
+    },
+    {
+      "feature": "calendar-occurrence-exceptions",
+      "action": "phase_complete",
+      "phase": "design",
+      "nextPhase": "do",
+      "timestamp": "2026-08-26T11:22:18.255Z"
+    },
+    {
+      "feature": "calendar-occurrence-exceptions",
+      "from": "check",
+      "to": "act",
+      "timestamp": "2026-08-26T11:42:42.474Z"
+    },
+    {
+      "feature": "calendar-occurrence-exceptions",
+      "action": "phase_complete",
+      "phase": "check",
+      "nextPhase": "act",
+      "timestamp": "2026-08-26T11:42:42.476Z"
+    },
+    {
+      "feature": "calendar-occurrence-exceptions",
+      "from": "act",
+      "to": "report",
+      "timestamp": "2026-08-26T11:42:42.562Z"
+    },
+    {
+      "feature": "calendar-occurrence-exceptions",
+      "action": "phase_complete",
+      "phase": "act",
+      "nextPhase": "report",
+      "timestamp": "2026-08-26T11:42:42.564Z"
+    },
+    {
+      "feature": "calendar-occurrence-exceptions",
+      "action": "phase_complete",
+      "phase": "report",
+      "nextPhase": "completed",
+      "timestamp": "2026-08-26T11:42:42.668Z"
+    }
+  ]
+}

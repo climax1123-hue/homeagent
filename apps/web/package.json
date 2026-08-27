@@ -13,9 +13,11 @@
   "dependencies": {
     "@home/design-system": "workspace:*",
     "@home/shared": "workspace:*",
+    "@supabase/supabase-js": "^2.112.4",
     "@vitejs/plugin-react": "latest",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "react-router-dom": "^7.18.2"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "latest",
