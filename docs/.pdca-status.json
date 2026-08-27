@@ -1,8 +1,10 @@
 {
   "version": "2.0",
-  "lastUpdated": "2026-08-26T11:42:42.692Z",
-  "activeFeatures": [],
-  "primaryFeature": null,
+  "lastUpdated": "2026-08-27T00:22:55.686Z",
+  "activeFeatures": [
+    "ledger-core"
+  ],
+  "primaryFeature": "ledger-core",
   "features": {
     "auth": {
       "phase": "archived",
@@ -351,6 +353,44 @@
       },
       "completedAt": "2026-08-26T11:42:42.665Z",
       "archivedAt": "2026-08-26T11:45:00.000Z"
+    },
+    "ledger-core": {
+      "phase": "design",
+      "matchRate": null,
+      "iterationCount": 0,
+      "documents": {},
+      "taskChain": [
+        {
+          "phase": "plan",
+          "status": "completed",
+          "createdAt": "2026-08-27T00:21:25.423Z",
+          "completedAt": "2026-08-27T00:22:55.686Z"
+        },
+        {
+          "phase": "design",
+          "status": "active",
+          "createdAt": "2026-08-27T00:21:25.423Z"
+        },
+        {
+          "phase": "do",
+          "status": "pending",
+          "createdAt": "2026-08-27T00:21:25.423Z"
+        },
+        {
+          "phase": "check",
+          "status": "pending",
+          "createdAt": "2026-08-27T00:21:25.423Z"
+        },
+        {
+          "phase": "report",
+          "status": "pending",
+          "createdAt": "2026-08-27T00:21:25.423Z"
+        }
+      ],
+      "timestamps": {
+        "started": "2026-08-27T00:21:25.873Z",
+        "lastUpdated": "2026-08-27T00:22:55.686Z"
+      }
     }
   },
   "pipeline": {
@@ -361,7 +401,7 @@
   "session": {
     "startedAt": "2026-08-25T21:55:02.505Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-08-26T11:42:42.692Z"
+    "lastActivity": "2026-08-27T00:22:55.686Z"
   },
   "history": [
     {
@@ -958,6 +998,19 @@
       "phase": "report",
       "nextPhase": "completed",
       "timestamp": "2026-08-26T11:42:42.668Z"
+    },
+    {
+      "feature": "ledger-core",
+      "from": "plan",
+      "to": "design",
+      "timestamp": "2026-08-27T00:22:55.437Z"
+    },
+    {
+      "feature": "ledger-core",
+      "action": "phase_complete",
+      "phase": "plan",
+      "nextPhase": "design",
+      "timestamp": "2026-08-27T00:22:55.447Z"
     }
   ]
 }
