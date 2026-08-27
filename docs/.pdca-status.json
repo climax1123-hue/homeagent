@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "lastUpdated": "2026-08-27T00:22:55.686Z",
+  "lastUpdated": "2026-08-27T01:21:31.799Z",
   "activeFeatures": [
     "ledger-core"
   ],
@@ -355,7 +355,7 @@
       "archivedAt": "2026-08-26T11:45:00.000Z"
     },
     "ledger-core": {
-      "phase": "design",
+      "phase": "do",
       "matchRate": null,
       "iterationCount": 0,
       "documents": {},
@@ -368,12 +368,13 @@
         },
         {
           "phase": "design",
-          "status": "active",
-          "createdAt": "2026-08-27T00:21:25.423Z"
+          "status": "completed",
+          "createdAt": "2026-08-27T00:21:25.423Z",
+          "completedAt": "2026-08-27T01:21:31.798Z"
         },
         {
           "phase": "do",
-          "status": "pending",
+          "status": "active",
           "createdAt": "2026-08-27T00:21:25.423Z"
         },
         {
@@ -389,7 +390,7 @@
       ],
       "timestamps": {
         "started": "2026-08-27T00:21:25.873Z",
-        "lastUpdated": "2026-08-27T00:22:55.686Z"
+        "lastUpdated": "2026-08-27T01:21:31.798Z"
       }
     }
   },
@@ -401,7 +402,7 @@
   "session": {
     "startedAt": "2026-08-25T21:55:02.505Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-08-27T00:22:55.686Z"
+    "lastActivity": "2026-08-27T01:21:31.799Z"
   },
   "history": [
     {
@@ -1011,6 +1012,25 @@
       "phase": "plan",
       "nextPhase": "design",
       "timestamp": "2026-08-27T00:22:55.447Z"
+    },
+    {
+      "feature": "ledger-core",
+      "from": "design",
+      "to": "design",
+      "timestamp": "2026-08-27T01:18:02.419Z"
+    },
+    {
+      "feature": "ledger-core",
+      "from": "design",
+      "to": "do",
+      "timestamp": "2026-08-27T01:21:31.328Z"
+    },
+    {
+      "feature": "ledger-core",
+      "action": "phase_complete",
+      "phase": "design",
+      "nextPhase": "do",
+      "timestamp": "2026-08-27T01:21:31.430Z"
     }
   ]
 }
