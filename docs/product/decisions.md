@@ -1,5 +1,21 @@
 # 제품 의사결정 기록
 
+## 웹 호스팅
+
+### 확정
+
+- React + Vite 웹 앱은 Vercel에 배포한다.
+- GitHub `homeagent` 저장소와 연결해 기본 브랜치 push 시 production을 자동 배포한다.
+- Pull Request 또는 개발 브랜치는 Vercel Preview Deployment로 확인한다.
+- Supabase는 인증·PostgreSQL·RLS·Edge Functions 역할을 유지하며 Vercel로 이전하지 않는다.
+- 개인 가족 프로젝트 단계에서는 Vercel Hobby 범위로 시작한다.
+
+### 운영 원칙
+
+- Vercel에는 `VITE_SUPABASE_URL`, publishable key 등 공개 가능한 브라우저 환경변수만 등록한다.
+- Supabase `service_role`, Google OAuth client secret과 refresh token은 Vercel 프런트 환경변수에 넣지 않는다.
+- 실제 production 배포 연결은 핵심 MVP의 외부 테스트를 시작할 때 수행한다.
+
 ## 가족 구성원 관리
 
 ### 확정

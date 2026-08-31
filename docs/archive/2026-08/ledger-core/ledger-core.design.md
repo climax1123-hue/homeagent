@@ -1,6 +1,6 @@
 # ledger-core - Design Document
 
-> Version: 1.0.0 | Date: 2026-08-27 | Status: Approved
+> Version: 1.1.0 | Date: 2026-08-27 | Status: Approved
 > Level: Dynamic | Plan: [ledger-core.plan.md](../../01-plan/features/ledger-core.plan.md)
 
 ---
@@ -52,17 +52,17 @@ Supabase PostgreSQL
 
 ### 2.2 Component Responsibilities
 
-| Component | Responsibility |
-|---|---|
-| `LedgerContainer` | 접근 컨텍스트, 장부·거래·결제수단·카테고리 로딩과 mutation orchestration |
-| `LedgerPage` | 반응형 화면 배치와 dialog/sheet 상태 |
-| `BookSwitcher` | 가족 장부와 본인 개인 장부 전환, 공개범위 표시 |
-| `MonthNavigator` | Asia/Seoul 기준 월 이동과 현재 월 복귀 |
-| `MonthlySummary` | 수입·지출·순수지 정수 문자열 표시 |
-| `LedgerFilters` | 유형, 계좌, 카테고리, 결제자, 검색어 필터 |
-| `TransactionList` | 날짜별 그룹, 작성자·결제자·금액·카테고리 표시 |
-| `TransactionEditor` | 수입·지출·이체 빠른 입력과 상세 입력 |
-| `LedgerSettings` | 결제수단·카테고리 추가, 수정, 정렬, 비활성화 |
+| Component           | Responsibility                                                           |
+| ------------------- | ------------------------------------------------------------------------ |
+| `LedgerContainer`   | 접근 컨텍스트, 장부·거래·결제수단·카테고리 로딩과 mutation orchestration |
+| `LedgerPage`        | 반응형 화면 배치와 dialog/sheet 상태                                     |
+| `BookSwitcher`      | 가족 장부와 본인 개인 장부 전환, 공개범위 표시                           |
+| `MonthNavigator`    | Asia/Seoul 기준 월 이동과 현재 월 복귀                                   |
+| `MonthlySummary`    | 수입·지출·순수지 정수 문자열 표시                                        |
+| `LedgerFilters`     | 유형, 계좌, 카테고리, 결제자, 검색어 필터                                |
+| `TransactionList`   | 날짜별 그룹, 작성자·결제자·금액·카테고리 표시                            |
+| `TransactionEditor` | 수입·지출·이체 빠른 입력과 상세 입력                                     |
+| `LedgerSettings`    | 결제수단·카테고리 추가, 수정, 정렬, 비활성화                             |
 
 ### 2.3 Data Flow
 
@@ -99,17 +99,17 @@ ledger_category_type = 'income' | 'expense'
 
 장부 공개범위를 정의하는 최상위 엔티티다. 하위 account/category/transaction은 공개범위를 중복 저장하지 않고 book을 통해 판정한다.
 
-| Column | Type | Rules |
-|---|---|---|
-| `id` | uuid | PK, `gen_random_uuid()` |
-| `household_id` | uuid | FK households, not null |
-| `owner_user_id` | uuid | FK auth.users, not null |
-| `visibility` | enum | family/private |
-| `name` | text | trim, 1..60 |
-| `currency` | text | MVP는 `KRW` check |
-| `is_active` | boolean | default true |
-| `created_at` | timestamptz | UTC default now |
-| `updated_at` | timestamptz | touch trigger |
+| Column          | Type        | Rules                   |
+| --------------- | ----------- | ----------------------- |
+| `id`            | uuid        | PK, `gen_random_uuid()` |
+| `household_id`  | uuid        | FK households, not null |
+| `owner_user_id` | uuid        | FK auth.users, not null |
+| `visibility`    | enum        | family/private          |
+| `name`          | text        | trim, 1..60             |
+| `currency`      | text        | MVP는 `KRW` check       |
+| `is_active`     | boolean     | default true            |
+| `created_at`    | timestamptz | UTC default now         |
+| `updated_at`    | timestamptz | touch trigger           |
 
 Constraints and indexes:
 
@@ -119,62 +119,62 @@ Constraints and indexes:
 
 ### 3.3 `ledger_accounts`
 
-| Column | Type | Rules |
-|---|---|---|
-| `id` | uuid | PK |
-| `book_id` | uuid | FK ledger_books cascade |
-| `household_id` | uuid | book에서 trigger로 복사, RLS/index 용도 |
-| `owner_user_id` | uuid | active household member |
-| `type` | enum | cash/bank/debit_card/credit_card/other |
-| `name` | text | trim, 1..60 |
-| `opening_balance` | bigint | 정수, default 0 |
-| `sort_order` | integer | 0 이상 |
-| `is_active` | boolean | default true |
-| `created_at`, `updated_at` | timestamptz | UTC |
+| Column                     | Type        | Rules                                   |
+| -------------------------- | ----------- | --------------------------------------- |
+| `id`                       | uuid        | PK                                      |
+| `book_id`                  | uuid        | FK ledger_books cascade                 |
+| `household_id`             | uuid        | book에서 trigger로 복사, RLS/index 용도 |
+| `owner_user_id`            | uuid        | active household member                 |
+| `type`                     | enum        | cash/bank/debit_card/credit_card/other  |
+| `name`                     | text        | trim, 1..60                             |
+| `opening_balance`          | bigint      | 정수, default 0                         |
+| `sort_order`               | integer     | 0 이상                                  |
+| `is_active`                | boolean     | default true                            |
+| `created_at`, `updated_at` | timestamptz | UTC                                     |
 
 가족 장부 account는 해당 가족 구성원을 owner로 지정한다. 개인 장부 account의 owner는 book owner와 같아야 한다. 실제 계좌번호나 카드번호는 저장하지 않는다.
 
 ### 3.4 `ledger_categories`
 
-| Column | Type | Rules |
-|---|---|---|
-| `id` | uuid | PK |
-| `book_id` | uuid | FK ledger_books cascade |
-| `household_id` | uuid | book에서 복사 |
-| `type` | enum | income/expense |
-| `name` | text | trim, 1..40 |
-| `icon` | text | 허용된 icon name, 1..40 |
-| `color` | text | 허용된 design token key |
-| `sort_order` | integer | 0 이상 |
-| `is_default` | boolean | 시스템 생성 여부 |
-| `is_active` | boolean | default true |
-| `created_by` | uuid | FK auth.users |
-| `created_at`, `updated_at` | timestamptz | UTC |
+| Column                     | Type        | Rules                   |
+| -------------------------- | ----------- | ----------------------- |
+| `id`                       | uuid        | PK                      |
+| `book_id`                  | uuid        | FK ledger_books cascade |
+| `household_id`             | uuid        | book에서 복사           |
+| `type`                     | enum        | income/expense          |
+| `name`                     | text        | trim, 1..40             |
+| `icon`                     | text        | 허용된 icon name, 1..40 |
+| `color`                    | text        | 허용된 design token key |
+| `sort_order`               | integer     | 0 이상                  |
+| `is_default`               | boolean     | 시스템 생성 여부        |
+| `is_active`                | boolean     | default true            |
+| `created_by`               | uuid        | FK auth.users           |
+| `created_at`, `updated_at` | timestamptz | UTC                     |
 
 동일 book/type에서 대소문자를 무시한 category name unique를 적용한다. 거래가 연결된 category는 삭제하지 않고 `is_active=false`로 전환한다. 향후 `parent_id` migration으로 소분류를 확장한다.
 
 ### 3.5 `ledger_transactions`
 
-| Column | Type | Rules |
-|---|---|---|
-| `id` | uuid | PK |
-| `book_id` | uuid | FK ledger_books cascade |
-| `household_id` | uuid | book에서 복사 |
-| `type` | enum | income/expense/transfer |
-| `amount` | bigint | `> 0` |
-| `occurred_at` | timestamptz | UTC 저장 |
-| `account_id` | uuid | 출금 또는 입금 account |
-| `transfer_account_id` | uuid nullable | transfer 도착 account |
-| `category_id` | uuid nullable | income/expense category |
-| `merchant` | text | trim, 최대 120 |
-| `memo` | text | 최대 500 |
-| `payer_user_id` | uuid | 실제 결제자/수입 귀속자 |
-| `created_by` | uuid | 작성자, 불변 |
-| `updated_by` | uuid | 최근 수정자 |
-| `source` | enum | manual/import, MVP manual |
-| `client_request_id` | uuid | 작성자별 unique |
-| `deleted_at` | timestamptz nullable | soft delete |
-| `created_at`, `updated_at` | timestamptz | UTC |
+| Column                     | Type                 | Rules                     |
+| -------------------------- | -------------------- | ------------------------- |
+| `id`                       | uuid                 | PK                        |
+| `book_id`                  | uuid                 | FK ledger_books cascade   |
+| `household_id`             | uuid                 | book에서 복사             |
+| `type`                     | enum                 | income/expense/transfer   |
+| `amount`                   | bigint               | `> 0`                     |
+| `occurred_at`              | timestamptz          | UTC 저장                  |
+| `account_id`               | uuid                 | 출금 또는 입금 account    |
+| `transfer_account_id`      | uuid nullable        | transfer 도착 account     |
+| `category_id`              | uuid nullable        | income/expense category   |
+| `merchant`                 | text                 | trim, 최대 120            |
+| `memo`                     | text                 | 최대 500                  |
+| `payer_user_id`            | uuid                 | 실제 결제자/수입 귀속자   |
+| `created_by`               | uuid                 | 작성자, 불변              |
+| `updated_by`               | uuid                 | 최근 수정자               |
+| `source`                   | enum                 | manual/import, MVP manual |
+| `client_request_id`        | uuid                 | 작성자별 unique           |
+| `deleted_at`               | timestamptz nullable | soft delete               |
+| `created_at`, `updated_at` | timestamptz          | UTC                       |
 
 Shape constraints:
 
@@ -204,10 +204,10 @@ auth.users 1 ── N ledger_transactions.created_by / payer_user_id / updated_b
 ### 4.1 Signed Account Movement
 
 | Transaction | `account_id` | `transfer_account_id` |
-|---|---:|---:|
-| income | `+amount` | - |
-| expense | `-amount` | - |
-| transfer | `-amount` | `+amount` |
+| ----------- | -----------: | --------------------: |
+| income      |    `+amount` |                     - |
+| expense     |    `-amount` |                     - |
+| transfer    |    `-amount` |             `+amount` |
 
 Account balance is `opening_balance + sum(signed movement)` for non-deleted transactions. Credit card account은 MVP에서 일반 결제수단과 동일하게 지출 시 감소하는 단순 표시 잔액을 사용하고, 청구 예정액 모델은 후속 기능으로 분리한다.
 
@@ -250,12 +250,12 @@ private.can_manage_ledger_transaction(transaction_id)
 
 ### 5.2 Table Policies
 
-| Table | SELECT | INSERT | UPDATE/DELETE |
-|---|---|---|---|
-| books | `can_read` | family는 admin, private는 본인 active member | `can_manage_book` |
-| accounts | parent book `can_read` | family 본인 owner account, private book owner | account owner 또는 book manager |
-| categories | parent book `can_read` | book manager | book manager; 사용 중이면 비활성화만 |
-| transactions | parent book `can_read` + not deleted | book read 권한 및 identity trigger | 작성자 또는 book manager; private는 owner만 |
+| Table        | SELECT                               | INSERT                                        | UPDATE/DELETE                               |
+| ------------ | ------------------------------------ | --------------------------------------------- | ------------------------------------------- |
+| books        | `can_read`                           | family는 admin, private는 본인 active member  | `can_manage_book`                           |
+| accounts     | parent book `can_read`               | family 본인 owner account, private book owner | account owner 또는 book manager             |
+| categories   | parent book `can_read`               | book manager                                  | book manager; 사용 중이면 비활성화만        |
+| transactions | parent book `can_read` + not deleted | book read 권한 및 identity trigger            | 작성자 또는 book manager; private는 owner만 |
 
 soft-deleted 거래는 일반 SELECT 정책에서 제외한다. 삭제 mutation은 `deleted_at=now()` update로 수행하며 직접 DELETE 권한은 부여하지 않는다.
 
@@ -484,3 +484,50 @@ supabase/tests/
 - 월 예산 이월 방식과 카드 결제 예정액
 - 월간 비용 제안에 사용할 통계 기간과 설명 가능성 기준
 
+## 14. Calendar, Installment and Common-Code Extension
+
+### 14.1 Calendar Views
+
+- 월 보기와 주 보기를 동일한 월간 거래 조회 결과에서 계산한다.
+- 각 날짜 셀은 수입 합계와 지출 합계를 `bigint`로 집계해 표시한다.
+- 날짜를 선택하면 하단 상세 목록을 해당 날짜 거래로 제한한다.
+- 주 보기는 선택일이 속한 일요일~토요일 7일을 표시한다.
+- UI의 거래 입력은 `YYYY-MM-DD`만 받고 `00:00:00 Asia/Seoul`을 UTC ISO 문자열로 변환한다.
+
+### 14.2 Installments
+
+`ledger_transactions`에 다음 nullable 메타데이터를 추가한다.
+
+| Column                       | Type    | Rule                  |
+| ---------------------------- | ------- | --------------------- |
+| `installment_group_id`       | uuid    | 한 할부 묶음의 식별자 |
+| `installment_number`         | integer | 1..installment_count  |
+| `installment_count`          | integer | 2..60                 |
+| `installment_original_total` | bigint  | 전체 원금, 0보다 큼   |
+
+`create_ledger_installment(...)` RPC가 하나의 DB transaction 안에서 회차 거래를 생성한다. `총액 / 개월 수`의 나머지는 앞 회차부터 1원씩 배분해 회차 합계가 원금과 항상 같게 한다. 기준일이 다음 달에 없으면 그 달 말일을 사용한다. 할부는 `expense`에만 허용한다.
+
+### 14.3 Common Codes
+
+공통코드는 가계부 전용이 아닌 `common_codes` 기능에서 관리한다. 가계부는 그중 `payment_method_type` 그룹을 참조한다.
+
+```text
+household_id + group_key + code (unique)
+group_key = payment_method_type
+label, sort_order, is_system, is_active
+```
+
+- 활성 가족 구성원은 조회할 수 있다.
+- 가족 관리자만 추가·수정·비활성화할 수 있다.
+- 기본 코드는 `cash`, `bank`, `debit_card`, `credit_card`, `other`이며 기존 account 값을 backfill한다.
+- `ledger_accounts.type_code`가 공통코드를 참조한다. 기존 enum `type`은 호환성을 위해 유지하되 신규 UI/API는 `type_code`를 기준으로 사용한다.
+- 수입·지출·이체, 공개범위, 권한 상태도 중앙 코드 목록에 등록하지만 DB 계산과 RLS를 보호하기 위해 관리자 변경은 잠근다.
+
+### 14.4 Additional Verification
+
+- 다른 가족의 공통코드 조회·변경 차단 및 member 쓰기 차단
+- 사용 중인 코드는 삭제하지 않고 비활성화
+- 할부 120만원/3개월이 40만원씩 생성되고 월별 합계에 반영
+- 나누어떨어지지 않는 원금의 회차 합이 원금과 동일
+- 29~31일의 익월 날짜 말일 보정
+- 월·주 달력 일별 합계와 선택일 상세 일치

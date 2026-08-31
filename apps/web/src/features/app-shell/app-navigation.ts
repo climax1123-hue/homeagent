@@ -32,6 +32,7 @@ export const APP_NAV_ITEMS: readonly AppNavItem[] = [
     placement: 'more',
     roles: ['admin'],
   },
+  { id: 'common-codes', label: '공통코드 관리', path: '/app/common-codes', icon: 'settings', placement: 'more', roles: ['admin'] },
 ];
 
 export function visibleNavigation(role: AppRole) {

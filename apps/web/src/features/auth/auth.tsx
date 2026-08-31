@@ -59,10 +59,14 @@ export function AuthProviders({
 function AccessProvider({ children }: { children: ReactNode }) {
   const auth = useAuth();
   const [access, setAccess] = useState<AccessContext | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [revision, setRevision] = useState(0);
   useEffect(() => {
+    if (auth.loading) {
+      setLoading(true);
+      return;
+    }
     if (!auth.user) {
       setAccess(null);
       setError(false);
@@ -89,7 +93,7 @@ function AccessProvider({ children }: { children: ReactNode }) {
     return () => {
       active = false;
     };
-  }, [auth.client, auth.user, revision]);
+  }, [auth.client, auth.loading, auth.user, revision]);
   return (
     <AccessContextState.Provider
       value={{ loading, access, error, reload: () => setRevision((v) => v + 1) }}
@@ -286,7 +290,7 @@ export function CheckEmailPage() {
 }
 
 export function AccessStatusPage() {
-  const { client } = useAuth();
+  const { client, user } = useAuth();
   const { access, error: accessError, reload } = useAccess();
   const navigate = useNavigate();
   const [name, setName] = useState('');
@@ -349,6 +353,7 @@ export function AccessStatusPage() {
   return (
     <AuthCard title="접근 상태">
       <p>{text}</p>
+      {user?.email && <p className="auth-session-email">현재 로그인: {user.email}</p>}
       {(access?.kind === 'invited' || access?.kind === 'unassigned') && (
         <>
           <Field label="표시 이름" type="text" value={name} onChange={setName} />

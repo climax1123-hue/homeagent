@@ -8,11 +8,12 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "typecheck": "tsc -b --pretty false",
-    "test": "vitest run"
+    "test": "vitest run --pool=threads --maxWorkers=1 --fileParallelism=false"
   },
   "dependencies": {
     "@home/design-system": "workspace:*",
     "@home/shared": "workspace:*",
+    "@home/statement-parser": "workspace:*",
     "@supabase/supabase-js": "^2.112.4",
     "@vitejs/plugin-react": "latest",
     "react": "latest",

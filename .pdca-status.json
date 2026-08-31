@@ -1,0 +1,37 @@
+{
+  "features": {
+    "ledger-core": {
+      "phase": "archived",
+      "matchRate": 92,
+      "iteration": 1,
+      "archivedAt": "2026-08-28"
+    },
+    "common-codes": {
+      "phase": "archived",
+      "matchRate": 96,
+      "iteration": 1,
+      "archivedAt": "2026-08-28"
+    },
+    "statement-import": {
+      "phase": "archived",
+      "matchRate": 94,
+      "iteration": 1,
+      "updatedAt": "2026-08-28",
+      "archivedAt": "2026-08-28"
+    },
+    "statement-classification": {
+      "phase": "archived",
+      "matchRate": 94,
+      "iteration": 1,
+      "updatedAt": "2026-08-31",
+      "archivedAt": "2026-08-31"
+    },
+    "ledger-dashboard": {
+      "phase": "archived",
+      "matchRate": 96,
+      "iteration": 1,
+      "updatedAt": "2026-08-31",
+      "archivedAt": "2026-08-31"
+    }
+  }
+}

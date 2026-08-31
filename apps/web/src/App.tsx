@@ -24,6 +24,9 @@ import {
 import { HouseholdManagementContainer } from './features/household/HouseholdManagementContainer';
 import { HouseholdSettingsContainer } from './features/household/HouseholdSettingsContainer';
 import { CalendarContainer } from './features/calendar/CalendarContainer';
+import { LedgerContainer } from './features/ledger/LedgerContainer';
+import { LedgerDashboardContainer } from './features/ledger/dashboard/LedgerDashboardContainer';
+import { CommonCodesPage } from './features/common-codes/CommonCodesPage';
 import './features/household/household.css';
 import { getSupabaseClient } from './lib/supabase/client';
 
@@ -85,15 +88,8 @@ export function App() {
               <Route path="/app" element={<AppShell />}>
                 <Route index element={<DashboardPage />} />
                 <Route path="calendar" element={<CalendarContainer />} />
-                <Route
-                  path="ledger"
-                  element={
-                    <ComingSoonPage
-                      feature="가계부"
-                      description="거래 관리와 은행 명세 자동 분류 기능을 준비하고 있습니다."
-                    />
-                  }
-                />
+                <Route path="ledger" element={<LedgerContainer />} />
+                <Route path="ledger/dashboard" element={<LedgerDashboardContainer />} />
                 <Route
                   path="ddays"
                   element={
@@ -114,6 +110,7 @@ export function App() {
                 />
                 <Route path="settings" element={<HouseholdSettingsRoute />} />
                 <Route path="members" element={<MembersRoute />} />
+                <Route path="common-codes" element={<CommonCodesPage />} />
                 <Route path="*" element={<AppNotFoundPage />} />
               </Route>
             </Route>

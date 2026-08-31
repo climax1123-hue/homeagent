@@ -1,0 +1,173 @@
+.statement-import {
+  width: min(1080px, 100%);
+}
+.statement-file {
+  border: 1px dashed var(--app-color-border);
+  border-radius: 14px;
+  padding: 14px;
+}
+.statement-summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.statement-summary span {
+  color: var(--app-color-muted);
+}
+.statement-options,
+.statement-target {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.statement-mapping {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.statement-table {
+  max-height: 46vh;
+  overflow: auto;
+  border: 1px solid var(--app-color-border);
+  border-radius: 12px;
+}
+.statement-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+.statement-table th {
+  position: sticky;
+  top: 0;
+  background: #f6f8fb;
+  z-index: 1;
+}
+.statement-table th,
+.statement-table td {
+  padding: 8px;
+  border-bottom: 1px solid var(--app-color-border);
+  text-align: left;
+  white-space: nowrap;
+}
+.statement-table td input,
+.statement-table td select {
+  min-width: 120px;
+  min-height: 44px;
+}
+.statement-table td input[type='checkbox'] {
+  min-width: 44px;
+}
+.statement-table tr.invalid {
+  background: #fff0f2;
+}
+.statement-table tr.duplicate {
+  background: #fff8df;
+}
+.statement-success {
+  border-radius: 12px;
+  background: #e7f8f1;
+  padding: 12px;
+  color: #16815b;
+}
+.statement-profile-applied {
+  margin: 0;
+  border-radius: 10px;
+  background: #eef3ff;
+  padding: 10px 12px;
+  color: #405ca8;
+  font-size: 0.84rem;
+}
+.statement-profile-save {
+  display: flex;
+  align-items: end;
+  gap: 8px;
+}
+.statement-profile-save label {
+  flex: 1;
+}
+.statement-profile-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.statement-profile-list span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid var(--app-color-border);
+  border-radius: 999px;
+  padding-left: 11px;
+  font-size: 0.8rem;
+}
+.statement-profile-list button {
+  min-height: 36px;
+  width: 36px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.statement-table td:last-child {
+  max-width: 230px;
+  white-space: normal;
+  color: var(--app-color-muted);
+}
+
+@media (max-width: 760px) {
+  .statement-import {
+    max-height: 94vh;
+    overflow: auto;
+  }
+  .statement-mapping,
+  .statement-options,
+  .statement-target {
+    grid-template-columns: 1fr;
+  }
+  .statement-summary {
+    flex-direction: column;
+  }
+  .statement-table {
+    max-height: none;
+    overflow: visible;
+    border: 0;
+  }
+  .statement-table table,
+  .statement-table tbody {
+    display: block;
+  }
+  .statement-table thead {
+    display: none;
+  }
+  .statement-table tr {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+    padding: 12px;
+    border: 1px solid var(--app-color-border);
+    border-radius: 14px;
+    background: #fff;
+  }
+  .statement-table td {
+    display: grid;
+    grid-template-columns: 82px minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+    border: 0;
+    white-space: normal;
+  }
+  .statement-table td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    color: var(--app-color-muted);
+  }
+  .statement-table td input,
+  .statement-table td select {
+    width: 100%;
+    min-width: 0;
+  }
+  .statement-profile-save {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

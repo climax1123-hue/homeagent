@@ -4,6 +4,7 @@ import type {
   CalendarEventInput,
   CalendarView,
   HouseholdMember,
+  LedgerCommonCode,
 } from '@home/shared';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAccess, useAuth } from '../auth/auth';
@@ -23,6 +24,7 @@ export function CalendarContainer() {
   const [anchor, setAnchor] = useState(() => new Date());
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [members, setMembers] = useState<HouseholdMember[]>([]);
+  const [commonCodes, setCommonCodes] = useState<LedgerCommonCode[]>([]);
   const [exceptions, setExceptions] = useState<CalendarEventException[]>([]);
   const [eventReminderMinutes, setEventReminderMinutes] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
@@ -40,12 +42,13 @@ export function CalendarContainer() {
     setLoading(true);
     setError('');
     try {
-      const [nextEvents, nextMembers, nextGoogleConnection, nextReminderMinutes] =
+      const [nextEvents, nextMembers, nextGoogleConnection, nextReminderMinutes, nextCodes] =
         await Promise.all([
           api.listEvents(active.householdId, range.start, range.end),
           householdApi.listMembers(active.householdId),
           googleApi.getConnection(),
           notificationApi.listEventReminderMinutes(),
+          client.from('common_codes').select('*').eq('household_id', active.householdId).eq('is_active', true).order('sort_order'),
         ]);
       const nextExceptions = await api.listExceptions(
         nextEvents.filter((event) => event.recurrence).map((event) => event.id),
@@ -57,6 +60,8 @@ export function CalendarContainer() {
       setMembers(nextMembers.filter((member) => member.status === 'active'));
       setGoogleConnection(nextGoogleConnection);
       setEventReminderMinutes(nextReminderMinutes);
+      if (nextCodes.error) throw new Error('공통코드를 불러오지 못했습니다.');
+      setCommonCodes((nextCodes.data ?? []).map((row) => ({ id:String(row.id), householdId:String(row.household_id), groupKey:String(row.group_key), groupLabel:String(row.group_label), code:String(row.code), valueText:row.value_text == null ? undefined : String(row.value_text), label:String(row.label), sortOrder:Number(row.sort_order), isSystem:Boolean(row.is_system), isAdminEditable:Boolean(row.is_admin_editable), isActive:Boolean(row.is_active) })));
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : '일정을 불러오지 못했습니다.');
     } finally {
@@ -104,6 +109,7 @@ export function CalendarContainer() {
       <CalendarPage
         anchor={anchor}
         currentUserId={user.id}
+        commonCodes={commonCodes}
         error={error}
         eventReminderMinutes={eventReminderMinutes}
         householdId={active.householdId}

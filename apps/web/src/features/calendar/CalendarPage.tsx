@@ -1,5 +1,4 @@
 import {
-  CALENDAR_COLORS,
   validateCalendarEvent,
   type CalendarColor,
   type CalendarEvent,
@@ -8,6 +7,7 @@ import {
   type CalendarView,
   type HouseholdMember,
   type HouseholdRole,
+  type LedgerCommonCode,
   type RecurrenceFrequency,
 } from '@home/shared';
 import { useMemo, useState, type FormEvent } from 'react';
@@ -34,6 +34,7 @@ import './calendar.css';
 type Props = {
   anchor: Date;
   currentUserId: string;
+  commonCodes?: LedgerCommonCode[];
   error: string;
   eventReminderMinutes: Record<string, number>;
   householdId: string;
@@ -157,6 +158,7 @@ export function CalendarPage(props: Props) {
   const [formError, setFormError] = useState('');
   const [busy, setBusy] = useState(false);
   const [filter, setFilter] = useState<CalendarFilter>('all');
+  const choices = (key: string) => (props.commonCodes ?? []).filter((item) => item.groupKey === key && item.isActive);
   const currentMonth = Number(toDateKey(props.anchor).slice(5, 7));
   const visibleOccurrences = useMemo(
     () => filterOccurrences(props.occurrences, filter, props.currentUserId),
@@ -611,8 +613,7 @@ export function CalendarPage(props: Props) {
                     setDraft({ ...draft, visibility: e.target.value as Draft['visibility'] })
                   }
                 >
-                  <option value="family">가족 공유</option>
-                  <option value="private">개인</option>
+                  {choices('calendar_visibility').map((item)=><option key={item.code} value={item.code}>{item.label}</option>)}
                 </select>
               </label>
               <label className="calendar-check">
@@ -667,10 +668,7 @@ export function CalendarPage(props: Props) {
                       }
                     >
                       <option value="">반복 안 함</option>
-                      <option value="daily">매일</option>
-                      <option value="weekly">매주</option>
-                      <option value="monthly">매월</option>
-                      <option value="yearly">매년</option>
+                      {choices('recurrence_frequency').map((item)=><option key={item.code} value={item.code}>{item.label}</option>)}
                     </select>
                   </label>
                   {draft.frequency && (
@@ -696,9 +694,7 @@ export function CalendarPage(props: Props) {
                           setDraft({ ...draft, endMode: e.target.value as Draft['endMode'] })
                         }
                       >
-                        <option value="never">종료 없음</option>
-                        <option value="until">종료일</option>
-                        <option value="count">횟수</option>
+                        {choices('recurrence_end_mode').map((item)=><option key={item.code} value={item.code}>{item.label}</option>)}
                       </select>
                     </label>
                     {draft.endMode === 'until' && (
@@ -732,11 +728,7 @@ export function CalendarPage(props: Props) {
                     onChange={(e) => setDraft({ ...draft, reminderMinutes: e.target.value })}
                   >
                     <option value="">알림 없음</option>
-                    <option value="0">정시</option>
-                    <option value="10">10분 전</option>
-                    <option value="30">30분 전</option>
-                    <option value="60">1시간 전</option>
-                    <option value="1440">1일 전</option>
+                    {choices('calendar_reminder_minutes').map((item)=><option key={item.code} value={item.valueText}>{item.label}</option>)}
                   </select>
                 </label>
               </>
@@ -761,7 +753,7 @@ export function CalendarPage(props: Props) {
             <fieldset>
               <legend>색상</legend>
               <div className="calendar-colors">
-                {CALENDAR_COLORS.map((color) => (
+                {choices('calendar_color').map((item) => item.code as CalendarColor).map((color) => (
                   <label
                     key={color}
                     className={`calendar-color-choice calendar-color-choice--${color}`}
