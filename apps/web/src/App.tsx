@@ -2,7 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { readPublicEnv } from './config/public-env';
 import {
   AccessStatusPage,
-  AdminSignUpPage,
+  AdminSignUpDisabledPage,
   AuthCallbackPage,
   AuthenticatedRoute,
   AuthProviders,
@@ -78,7 +78,7 @@ export function App() {
           <Route path="/invite" element={<InvitationEntryPage />} />
           <Route element={<PublicOnlyRoute />}>
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup/admin" element={<AdminSignUpPage />} />
+            <Route path="/signup/admin" element={<AdminSignUpDisabledPage />} />
             <Route path="/signup/invite" element={<InviteSignUpPage />} />
           </Route>
           <Route path="/auth/check-email" element={<CheckEmailPage />} />

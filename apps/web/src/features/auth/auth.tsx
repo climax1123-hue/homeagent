@@ -208,14 +208,11 @@ export function LoginPage() {
           {busy ? '로그인 중…' : '로그인'}
         </button>
       </form>
-      <p>
-        <Link to="/signup/admin">최초 관리자 가입</Link>
-      </p>
     </AuthCard>
   );
 }
 
-export function SignUpPage({ invited = false }: { invited?: boolean }) {
+export function InviteSignUpPage() {
   const { client } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
@@ -237,7 +234,7 @@ export function SignUpPage({ invited = false }: { invited?: boolean }) {
     else navigate('/auth/check-email', { replace: true });
   }
   return (
-    <AuthCard title={invited ? '초대받은 가족 가입' : '최초 관리자 가입'}>
+    <AuthCard title="초대받은 가족 가입">
       <form onSubmit={(e) => void submit(e)}>
         <Field disabled={busy} label="이메일" type="email" value={email} onChange={setEmail} />
         <Field
@@ -261,8 +258,15 @@ export function SignUpPage({ invited = false }: { invited?: boolean }) {
   );
 }
 
-export const AdminSignUpPage = () => <SignUpPage />;
-export const InviteSignUpPage = () => <SignUpPage invited />;
+export function AdminSignUpDisabledPage() {
+  return (
+    <AuthCard title="관리자 가입이 종료되었습니다">
+      <p>최초 관리자 설정이 완료되어 새로운 관리자 계정은 만들 수 없습니다.</p>
+      <p>가족 구성원은 관리자가 보낸 초대 링크로만 가입할 수 있습니다.</p>
+      <Link to="/login">로그인으로</Link>
+    </AuthCard>
+  );
+}
 
 export function AuthCallbackPage() {
   const { loading: authLoading, user } = useAuth();
@@ -294,7 +298,6 @@ export function AccessStatusPage() {
   const { access, error: accessError, reload } = useAccess();
   const navigate = useNavigate();
   const [name, setName] = useState('');
-  const [householdName, setHouseholdName] = useState('우리집');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   async function logout() {
@@ -315,19 +318,6 @@ export function AccessStatusPage() {
       setError('초대를 수락하지 못했습니다. 이메일과 초대 상태를 확인해 주세요.');
     } finally {
       setBusy(false);
-    }
-  }
-  async function bootstrap() {
-    setBusy(true);
-    const { error: functionError } = await client.functions.invoke('bootstrap-admin', {
-      body: { householdName, displayName: name },
-    });
-    setBusy(false);
-    if (functionError)
-      setError('최초 관리자 설정을 완료하지 못했습니다. 허용 이메일과 입력값을 확인해 주세요.');
-    else {
-      reload();
-      navigate('/app', { replace: true });
     }
   }
   if (accessError)
@@ -354,23 +344,15 @@ export function AccessStatusPage() {
     <AuthCard title="접근 상태">
       <p>{text}</p>
       {user?.email && <p className="auth-session-email">현재 로그인: {user.email}</p>}
-      {(access?.kind === 'invited' || access?.kind === 'unassigned') && (
+      {access?.kind === 'invited' && (
         <>
           <Field label="표시 이름" type="text" value={name} onChange={setName} />
-          {access.kind === 'unassigned' && (
-            <Field
-              label="가족 공간 이름"
-              type="text"
-              value={householdName}
-              onChange={setHouseholdName}
-            />
-          )}
           <button
             disabled={busy || !name.trim()}
-            onClick={() => void (access.kind === 'invited' ? accept() : bootstrap())}
+            onClick={() => void accept()}
             type="button"
           >
-            {access.kind === 'invited' ? '초대 수락' : '최초 가족 공간 만들기'}
+            초대 수락
           </button>
         </>
       )}

@@ -1,5 +1,8 @@
+import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
 import {
+  AdminSignUpDisabledPage,
   accessStatusRedirect,
   messageForError,
   normalizeEmail,
@@ -35,5 +38,19 @@ describe('auth utilities', () => {
     expect(messageForError('Email not confirmed')).toContain('이메일 확인');
     expect(messageForError('rate limit exceeded')).toContain('잠시 후');
     expect(messageForError('Invalid login credentials')).not.toContain('Invalid');
+  });
+});
+
+describe('administrator signup', () => {
+  it('shows a closed notice without a signup form', () => {
+    render(
+      <MemoryRouter>
+        <AdminSignUpDisabledPage />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole('heading', { name: '관리자 가입이 종료되었습니다' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '가입' })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: '로그인으로' })).toHaveAttribute('href', '/login');
   });
 });
