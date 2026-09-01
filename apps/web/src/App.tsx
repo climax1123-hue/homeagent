@@ -27,6 +27,7 @@ import { CalendarContainer } from './features/calendar/CalendarContainer';
 import { LedgerContainer } from './features/ledger/LedgerContainer';
 import { LedgerDashboardContainer } from './features/ledger/dashboard/LedgerDashboardContainer';
 import { CommonCodesPage } from './features/common-codes/CommonCodesPage';
+import { PrivacyPage, PublicHomePage } from './features/public/PublicPages';
 import './features/household/household.css';
 import { getSupabaseClient } from './lib/supabase/client';
 
@@ -72,6 +73,8 @@ export function App() {
     <BrowserRouter>
       <AuthProviders client={getSupabaseClient(env)}>
         <Routes>
+          <Route path="/" element={<PublicHomePage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/invite" element={<InvitationEntryPage />} />
           <Route element={<PublicOnlyRoute />}>
             <Route path="/login" element={<LoginPage />} />

@@ -1,0 +1,152 @@
+.public-page {
+  min-height: 100vh;
+  padding: 24px clamp(20px, 5vw, 72px) 64px;
+  color: #17324d;
+  background: linear-gradient(145deg, #f7fbff 0%, #eef5f2 52%, #fff8ee 100%);
+}
+
+.public-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+.public-header nav {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.public-header a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.public-brand {
+  font-size: 1.35rem;
+  font-weight: 800;
+}
+
+.public-login-link,
+.public-primary-action {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #17324d;
+  color: #fff !important;
+  font-weight: 700;
+}
+
+.public-login-link {
+  padding: 0 18px;
+}
+
+.public-hero,
+.privacy-content {
+  max-width: 840px;
+  margin: 96px auto 0;
+}
+
+.public-eyebrow {
+  margin: 0 0 16px;
+  color: #38816b;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+}
+
+.public-hero h1,
+.privacy-content h1 {
+  margin: 0;
+  font-size: clamp(2.35rem, 7vw, 5rem);
+  line-height: 1.06;
+  letter-spacing: -0.045em;
+}
+
+.public-hero > p:not(.public-eyebrow) {
+  max-width: 680px;
+  margin: 28px 0;
+  color: #52677a;
+  font-size: 1.08rem;
+  line-height: 1.8;
+}
+
+.public-primary-action {
+  width: fit-content;
+  padding: 0 24px;
+  text-decoration: none;
+}
+
+.public-features {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  max-width: 1120px;
+  margin: 88px auto 0;
+}
+
+.public-features article {
+  padding: 28px;
+  border: 1px solid rgb(23 50 77 / 10%);
+  border-radius: 24px;
+  background: rgb(255 255 255 / 72%);
+}
+
+.public-features h2,
+.privacy-content h2 {
+  margin: 0 0 12px;
+}
+
+.public-features p,
+.privacy-content p {
+  color: #52677a;
+  line-height: 1.75;
+}
+
+.privacy-content {
+  max-width: 760px;
+  padding: 44px;
+  border-radius: 28px;
+  background: rgb(255 255 255 / 78%);
+}
+
+.privacy-content h1 {
+  font-size: clamp(2.25rem, 6vw, 4rem);
+}
+
+.privacy-content h2 {
+  margin-top: 36px;
+  font-size: 1.2rem;
+}
+
+.privacy-updated {
+  margin-bottom: 40px;
+}
+
+@media (max-width: 720px) {
+  .public-page {
+    padding: 18px 16px 40px;
+  }
+
+  .public-header nav > a:first-child {
+    display: none;
+  }
+
+  .public-hero,
+  .privacy-content {
+    margin-top: 64px;
+  }
+
+  .public-features {
+    grid-template-columns: 1fr;
+    margin-top: 56px;
+  }
+
+  .privacy-content {
+    padding: 28px 22px;
+  }
+}
