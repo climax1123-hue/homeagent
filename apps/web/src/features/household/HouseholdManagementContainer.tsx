@@ -89,7 +89,11 @@ export function HouseholdManagementContainer({
       onChangeMemberStatus={(memberId: string, targetStatus: HouseholdMemberStatus) =>
         runAndRefresh(() => api.changeMemberStatus(memberId, targetStatus))
       }
-      onInvite={(email) => runAndRefresh(() => api.invite(householdId, email))}
+      onInvite={async (email) => {
+        const result = await api.invite(householdId, email);
+        await load();
+        return result;
+      }}
     />
   );
 }

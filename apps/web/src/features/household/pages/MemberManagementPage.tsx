@@ -7,6 +7,7 @@ import {
   type HouseholdMemberStatus,
 } from '@home/shared';
 import { FormEvent, useId, useState } from 'react';
+import type { HouseholdInvitationResult } from '../api/household-api';
 import '../household.css';
 
 type MemberManagementPageProps = {
@@ -14,7 +15,7 @@ type MemberManagementPageProps = {
   members: HouseholdMember[];
   invitations: HouseholdInvitation[];
   currentUserId: string;
-  onInvite: (email: string) => Promise<void>;
+  onInvite: (email: string) => Promise<HouseholdInvitationResult>;
   onCancelInvitation: (invitationId: string) => Promise<void>;
   onChangeMemberStatus: (memberId: string, targetStatus: HouseholdMemberStatus) => Promise<void>;
 };
@@ -67,6 +68,7 @@ export function MemberManagementPage({
   const [statusChange, setStatusChange] = useState<PendingStatusChange | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [invitationUrl, setInvitationUrl] = useState<string | null>(null);
 
   const activeInvitations = invitations.filter((invitation) => invitation.status === 'pending');
 
@@ -82,11 +84,17 @@ export function MemberManagementPage({
     setPendingAction('invite');
     setError(null);
     setMessage(null);
+    setInvitationUrl(null);
 
     try {
-      await onInvite(normalizedEmail);
+      const result = await onInvite(normalizedEmail);
       setEmail('');
-      setMessage('가족 초대 메일을 보냈습니다.');
+      setInvitationUrl(result.invitationUrl);
+      setMessage(
+        result.deliveryStatus === 'sent'
+          ? '가족 초대 메일을 보냈습니다. 아래 링크를 직접 전달해도 됩니다.'
+          : '메일을 보내지 못했지만 초대는 생성했습니다. 아래 링크를 직접 전달해 주세요.',
+      );
     } catch (caughtError) {
       setError(readableError(caughtError));
     } finally {
@@ -147,6 +155,23 @@ export function MemberManagementPage({
         >
           {error ?? message}
         </div>
+      )}
+
+      {invitationUrl && (
+        <section className="household-invite-link" aria-label="생성된 초대 링크">
+          <label htmlFor="generated-invitation-url">초대 링크</label>
+          <div>
+            <input id="generated-invitation-url" readOnly value={invitationUrl} />
+            <button
+              className="secondary-action"
+              onClick={() => void navigator.clipboard.writeText(invitationUrl)}
+              type="button"
+            >
+              링크 복사
+            </button>
+          </div>
+          <p>이 링크는 7일 동안 한 번만 사용할 수 있습니다.</p>
+        </section>
       )}
 
       <div className="household-layout">

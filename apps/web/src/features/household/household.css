@@ -237,6 +237,43 @@ button:disabled {
   background: white;
 }
 
+.household-invite-link {
+  margin: 0 0 20px;
+  padding: 16px;
+  border: 1px solid #b9d1ff;
+  border-radius: 16px;
+  background: #f4f8ff;
+}
+
+.household-invite-link label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.household-invite-link > div {
+  display: flex;
+  gap: 8px;
+}
+
+.household-invite-link input {
+  min-width: 0;
+  flex: 1;
+}
+
+.household-invite-link p {
+  margin: 8px 0 0;
+  color: #52647d;
+  font-size: 14px;
+}
+
+@media (max-width: 640px) {
+  .household-invite-link > div {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
 .invitation-form input:focus-visible,
 button:focus-visible {
   outline: 3px solid rgb(40 111 232 / 30%);

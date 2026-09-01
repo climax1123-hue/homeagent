@@ -50,7 +50,12 @@ function renderPage(overrides: Partial<Parameters<typeof MemberManagementPage>[0
     members,
     invitations,
     currentUserId: 'admin-user',
-    onInvite: vi.fn().mockResolvedValue(undefined),
+    onInvite: vi.fn().mockResolvedValue({
+      invitationId: 'new-invitation',
+      deliveryStatus: 'sent',
+      invitationUrl: 'https://home.example/invite#token=one-time',
+      expiresAt: '2026-09-09T00:00:00.000Z',
+    }),
     onCancelInvitation: vi.fn().mockResolvedValue(undefined),
     onChangeMemberStatus: vi.fn().mockResolvedValue(undefined),
     ...overrides,
@@ -82,6 +87,32 @@ describe('MemberManagementPage', () => {
     await waitFor(() => expect(props.onInvite).toHaveBeenCalledWith('family@example.com'));
     expect(props.onInvite).toHaveBeenCalledTimes(1);
     expect(screen.getByRole('status')).toHaveTextContent('가족 초대 메일을 보냈습니다.');
+    expect(screen.getByLabelText('초대 링크')).toHaveValue(
+      'https://home.example/invite#token=one-time',
+    );
+  });
+
+  it('shows a shareable link when email delivery fails', async () => {
+    renderPage({
+      onInvite: vi.fn().mockResolvedValue({
+        invitationId: 'fallback-invitation',
+        deliveryStatus: 'failed',
+        invitationUrl: 'https://home.example/invite#token=fallback',
+        expiresAt: '2026-09-09T00:00:00.000Z',
+      }),
+    });
+
+    fireEvent.change(screen.getByLabelText('개인 이메일 주소'), {
+      target: { value: 'family@example.com' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: '초대 메일 보내기' }));
+
+    await waitFor(() =>
+      expect(screen.getByRole('status')).toHaveTextContent('초대는 생성했습니다'),
+    );
+    expect(screen.getByLabelText('초대 링크')).toHaveValue(
+      'https://home.example/invite#token=fallback',
+    );
   });
 
   it('requires confirmation before removing a member', async () => {

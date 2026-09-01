@@ -43,6 +43,13 @@ type AccessContextRow = {
   request_id: string | null;
 };
 
+export type HouseholdInvitationResult = {
+  invitationId: string;
+  deliveryStatus: 'sent' | 'failed';
+  invitationUrl: string;
+  expiresAt: string;
+};
+
 export class HouseholdApiError extends Error {
   readonly code: string;
 
@@ -188,11 +195,23 @@ export function createHouseholdApi(client: SupabaseClient) {
       return ((data ?? []) as InvitationRow[]).map(mapInvitation);
     },
 
-    async invite(householdId: string, email: string): Promise<void> {
-      const { error } = await client.functions.invoke('create-household-invitation', {
+    async invite(householdId: string, email: string): Promise<HouseholdInvitationResult> {
+      const { data, error } = await client.functions.invoke('create-household-invitation', {
         body: { householdId, email: email.trim().toLowerCase() },
       });
       ensureNoError(error);
+
+      const result = data as Partial<HouseholdInvitationResult> | null;
+      if (
+        !result?.invitationId ||
+        (result.deliveryStatus !== 'sent' && result.deliveryStatus !== 'failed') ||
+        !result.invitationUrl ||
+        !result.expiresAt
+      ) {
+        throw new HouseholdApiError('INVALID_INVITATION_RESPONSE');
+      }
+
+      return result as HouseholdInvitationResult;
     },
 
     async cancelInvitation(invitationId: string): Promise<void> {

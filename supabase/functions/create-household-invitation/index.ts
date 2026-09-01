@@ -129,11 +129,12 @@ async function handle(request: Request): Promise<Response> {
     }
 
     const created = data[0] as CreatedInvitation;
+    const createdInvitationUrl = invitationUrl(created.raw_token);
 
     try {
       await sendInvitationEmail({
         to: created.normalized_email,
-        invitationUrl: invitationUrl(created.raw_token),
+        invitationUrl: createdInvitationUrl,
       });
 
       await adminClient.rpc('mark_invitation_delivery', {
@@ -145,19 +146,19 @@ async function handle(request: Request): Promise<Response> {
         p_invitation_id: created.invitation_id,
         p_succeeded: false,
       });
-      await userClient.rpc('cancel_household_invitation', {
-        p_invitation_id: created.invitation_id,
-      });
 
-      return json(request, 502, {
-        code: 'INVITATION_DELIVERY_FAILED',
-        retryable: true,
+      return json(request, 202, {
+        invitationId: created.invitation_id,
+        deliveryStatus: 'failed',
+        invitationUrl: createdInvitationUrl,
+        expiresAt: created.expires_at,
       });
     }
 
     return json(request, 202, {
       invitationId: created.invitation_id,
       deliveryStatus: 'sent',
+      invitationUrl: createdInvitationUrl,
       expiresAt: created.expires_at,
     });
   } catch {
