@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import {
   AdminSignUpDisabledPage,
   accessStatusRedirect,
+  isAccessResolutionPending,
   messageForError,
   normalizeEmail,
   routeFor,
@@ -38,6 +39,12 @@ describe('auth utilities', () => {
     expect(messageForError('Email not confirmed')).toContain('이메일 확인');
     expect(messageForError('rate limit exceeded')).toContain('잠시 후');
     expect(messageForError('Invalid login credentials')).not.toContain('Invalid');
+  });
+  it('keeps access loading while a newly signed-in user is unresolved', () => {
+    expect(isAccessResolutionPending(false, 'new-user', null, false)).toBe(true);
+    expect(isAccessResolutionPending(false, 'new-user', 'previous-user', false)).toBe(true);
+    expect(isAccessResolutionPending(false, 'new-user', 'new-user', false)).toBe(false);
+    expect(isAccessResolutionPending(false, null, null, false)).toBe(false);
   });
 });
 

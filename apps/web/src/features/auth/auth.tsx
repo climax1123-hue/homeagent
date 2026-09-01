@@ -14,6 +14,12 @@ import { createHouseholdApi } from '../household/api/household-api';
 export const normalizeEmail = (value: string) => value.trim().toLowerCase();
 export const safeReturnTo = (value: string | null) =>
   value?.startsWith('/') && !value.startsWith('//') ? value : '/app';
+export const isAccessResolutionPending = (
+  authLoading: boolean,
+  userId: string | null,
+  resolvedUserId: string | null,
+  accessLoading: boolean,
+) => authLoading || Boolean(userId && (accessLoading || resolvedUserId !== userId));
 
 type AuthState = {
   loading: boolean;
@@ -60,6 +66,7 @@ function AccessProvider({ children }: { children: ReactNode }) {
   const auth = useAuth();
   const [access, setAccess] = useState<AccessContext | null>(null);
   const [loading, setLoading] = useState(true);
+  const [resolvedUserId, setResolvedUserId] = useState<string | null>(null);
   const [error, setError] = useState(false);
   const [revision, setRevision] = useState(0);
   useEffect(() => {
@@ -69,6 +76,7 @@ function AccessProvider({ children }: { children: ReactNode }) {
     }
     if (!auth.user) {
       setAccess(null);
+      setResolvedUserId(null);
       setError(false);
       setLoading(false);
       return;
@@ -79,11 +87,15 @@ function AccessProvider({ children }: { children: ReactNode }) {
     void createHouseholdApi(auth.client)
       .getAccessContext()
       .then((value) => {
-        if (active) setAccess(value);
+        if (active) {
+          setAccess(value);
+          setResolvedUserId(auth.user?.id ?? null);
+        }
       })
       .catch(() => {
         if (active) {
           setAccess(null);
+          setResolvedUserId(auth.user?.id ?? null);
           setError(true);
         }
       })
@@ -96,7 +108,17 @@ function AccessProvider({ children }: { children: ReactNode }) {
   }, [auth.client, auth.loading, auth.user, revision]);
   return (
     <AccessContextState.Provider
-      value={{ loading, access, error, reload: () => setRevision((v) => v + 1) }}
+      value={{
+        loading: isAccessResolutionPending(
+          auth.loading,
+          auth.user?.id ?? null,
+          resolvedUserId,
+          loading,
+        ),
+        access,
+        error,
+        reload: () => setRevision((v) => v + 1),
+      }}
     >
       {children}
     </AccessContextState.Provider>
