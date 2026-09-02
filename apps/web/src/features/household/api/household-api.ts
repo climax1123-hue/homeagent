@@ -45,7 +45,7 @@ type AccessContextRow = {
 
 export type HouseholdInvitationResult = {
   invitationId: string;
-  deliveryStatus: 'sent' | 'failed';
+  deliveryStatus: 'manual';
   invitationUrl: string;
   expiresAt: string;
 };
@@ -204,7 +204,7 @@ export function createHouseholdApi(client: SupabaseClient) {
       const result = data as Partial<HouseholdInvitationResult> | null;
       if (
         !result?.invitationId ||
-        (result.deliveryStatus !== 'sent' && result.deliveryStatus !== 'failed') ||
+        result.deliveryStatus !== 'manual' ||
         !result.invitationUrl ||
         !result.expiresAt
       ) {

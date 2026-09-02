@@ -90,11 +90,7 @@ export function MemberManagementPage({
       const result = await onInvite(normalizedEmail);
       setEmail('');
       setInvitationUrl(result.invitationUrl);
-      setMessage(
-        result.deliveryStatus === 'sent'
-          ? '가족 초대 메일을 보냈습니다. 아래 링크를 직접 전달해도 됩니다.'
-          : '메일을 보내지 못했지만 초대는 생성했습니다. 아래 링크를 직접 전달해 주세요.',
-      );
+      setMessage('가족 초대 링크를 만들었습니다. 카카오톡이나 이메일로 직접 전달해 주세요.');
     } catch (caughtError) {
       setError(readableError(caughtError));
     } finally {
@@ -283,7 +279,7 @@ export function MemberManagementPage({
               value={email}
             />
             <button className="primary-action" disabled={pendingAction === 'invite'} type="submit">
-              {pendingAction === 'invite' ? '보내는 중…' : '초대 메일 보내기'}
+              {pendingAction === 'invite' ? '생성 중…' : '초대 링크 만들기'}
             </button>
           </form>
 
@@ -298,7 +294,7 @@ export function MemberManagementPage({
                     <strong>{maskEmail(invitation.inviteeEmail)}</strong>
                     <p>
                       {formatDate(invitation.expiresAt)} 만료 ·{' '}
-                      {invitation.deliveryStatus === 'sent' ? '발송 완료' : '발송 확인 필요'}
+                      링크 생성됨
                     </p>
                   </div>
                   <button

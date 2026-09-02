@@ -8,17 +8,11 @@ import {
   messageForError,
   normalizeEmail,
   routeFor,
-  safeReturnTo,
 } from './auth';
 
 describe('auth utilities', () => {
   it('normalizes email identifiers', () =>
     expect(normalizeEmail(' Family@Example.COM ')).toBe('family@example.com'));
-  it('accepts only internal return paths', () => {
-    expect(safeReturnTo('/app/members')).toBe('/app/members');
-    expect(safeReturnTo('//evil.example')).toBe('/app');
-    expect(safeReturnTo('https://evil.example')).toBe('/app');
-  });
   it('routes every access state without trusting UI metadata', () => {
     expect(routeFor({ kind: 'active', householdId: 'h', role: 'admin' })).toBe('/app');
     expect(routeFor({ kind: 'invited', householdId: 'h', invitationId: 'i' })).toBe(

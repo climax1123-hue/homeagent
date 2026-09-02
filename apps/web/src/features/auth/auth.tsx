@@ -12,8 +12,6 @@ import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router-d
 import { createHouseholdApi } from '../household/api/household-api';
 
 export const normalizeEmail = (value: string) => value.trim().toLowerCase();
-export const safeReturnTo = (value: string | null) =>
-  value?.startsWith('/') && !value.startsWith('//') ? value : '/app';
 export const isAccessResolutionPending = (
   authLoading: boolean,
   userId: string | null,
@@ -187,7 +185,6 @@ export function LoginPage() {
   const { client, user } = useAuth();
   const { loading, access } = useAccess();
   const navigate = useNavigate();
-  const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -205,10 +202,7 @@ export function LoginPage() {
     });
     setBusy(false);
     if (authError) setError(messageForError(authError.message));
-    else
-      navigate(safeReturnTo((location.state as { returnTo?: string } | null)?.returnTo ?? null), {
-        replace: true,
-      });
+    else navigate('/app', { replace: true });
   }
   return (
     <AuthCard title="로그인">

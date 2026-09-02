@@ -1,5 +1,4 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { sendInvitationEmail } from '../_shared/email-provider.ts';
 
 type InvitationRequest = {
   householdId?: unknown;
@@ -129,36 +128,10 @@ async function handle(request: Request): Promise<Response> {
     }
 
     const created = data[0] as CreatedInvitation;
-    const createdInvitationUrl = invitationUrl(created.raw_token);
-
-    try {
-      await sendInvitationEmail({
-        to: created.normalized_email,
-        invitationUrl: createdInvitationUrl,
-      });
-
-      await adminClient.rpc('mark_invitation_delivery', {
-        p_invitation_id: created.invitation_id,
-        p_succeeded: true,
-      });
-    } catch {
-      await adminClient.rpc('mark_invitation_delivery', {
-        p_invitation_id: created.invitation_id,
-        p_succeeded: false,
-      });
-
-      return json(request, 202, {
-        invitationId: created.invitation_id,
-        deliveryStatus: 'failed',
-        invitationUrl: createdInvitationUrl,
-        expiresAt: created.expires_at,
-      });
-    }
-
     return json(request, 202, {
       invitationId: created.invitation_id,
-      deliveryStatus: 'sent',
-      invitationUrl: createdInvitationUrl,
+      deliveryStatus: 'manual',
+      invitationUrl: invitationUrl(created.raw_token),
       expiresAt: created.expires_at,
     });
   } catch {

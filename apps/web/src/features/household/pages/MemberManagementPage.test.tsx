@@ -52,7 +52,7 @@ function renderPage(overrides: Partial<Parameters<typeof MemberManagementPage>[0
     currentUserId: 'admin-user',
     onInvite: vi.fn().mockResolvedValue({
       invitationId: 'new-invitation',
-      deliveryStatus: 'sent',
+      deliveryStatus: 'manual',
       invitationUrl: 'https://home.example/invite#token=one-time',
       expiresAt: '2026-09-09T00:00:00.000Z',
     }),
@@ -82,21 +82,21 @@ describe('MemberManagementPage', () => {
     fireEvent.change(screen.getByLabelText('개인 이메일 주소'), {
       target: { value: '  FAMILY@EXAMPLE.COM  ' },
     });
-    fireEvent.click(screen.getByRole('button', { name: '초대 메일 보내기' }));
+    fireEvent.click(screen.getByRole('button', { name: '초대 링크 만들기' }));
 
     await waitFor(() => expect(props.onInvite).toHaveBeenCalledWith('family@example.com'));
     expect(props.onInvite).toHaveBeenCalledTimes(1);
-    expect(screen.getByRole('status')).toHaveTextContent('가족 초대 메일을 보냈습니다.');
+    expect(screen.getByRole('status')).toHaveTextContent('가족 초대 링크를 만들었습니다.');
     expect(screen.getByLabelText('초대 링크')).toHaveValue(
       'https://home.example/invite#token=one-time',
     );
   });
 
-  it('shows a shareable link when email delivery fails', async () => {
+  it('shows the manually shareable invitation link', async () => {
     renderPage({
       onInvite: vi.fn().mockResolvedValue({
         invitationId: 'fallback-invitation',
-        deliveryStatus: 'failed',
+        deliveryStatus: 'manual',
         invitationUrl: 'https://home.example/invite#token=fallback',
         expiresAt: '2026-09-09T00:00:00.000Z',
       }),
@@ -105,10 +105,10 @@ describe('MemberManagementPage', () => {
     fireEvent.change(screen.getByLabelText('개인 이메일 주소'), {
       target: { value: 'family@example.com' },
     });
-    fireEvent.click(screen.getByRole('button', { name: '초대 메일 보내기' }));
+    fireEvent.click(screen.getByRole('button', { name: '초대 링크 만들기' }));
 
     await waitFor(() =>
-      expect(screen.getByRole('status')).toHaveTextContent('초대는 생성했습니다'),
+      expect(screen.getByRole('status')).toHaveTextContent('가족 초대 링크를 만들었습니다'),
     );
     expect(screen.getByLabelText('초대 링크')).toHaveValue(
       'https://home.example/invite#token=fallback',
