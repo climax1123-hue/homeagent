@@ -119,6 +119,99 @@ describe('LedgerPage', () => {
     expect(screen.getByText('전체 거래 표시 중')).toBeInTheDocument();
   });
 
+  it('loads an existing transaction into the form and saves its changes', () => {
+    const book = {
+      id: 'book-1',
+      householdId: 'home-1',
+      ownerUserId: 'user-1',
+      visibility: 'family' as const,
+      name: '우리집 가계부',
+      currency: 'KRW' as const,
+      isActive: true,
+      createdAt: '',
+      updatedAt: '',
+    };
+    const transaction = {
+      id: 'tx-1',
+      bookId: 'book-1',
+      householdId: 'home-1',
+      type: 'expense' as const,
+      amount: '12000',
+      occurredAt: '2026-08-26T15:00:00.000Z',
+      accountId: 'account-1',
+      transferAccountId: null,
+      categoryId: 'category-1',
+      merchant: '마트',
+      memo: '장보기',
+      payerUserId: 'user-1',
+      createdBy: 'user-1',
+      updatedBy: 'user-1',
+      source: 'manual' as const,
+      clientRequestId: 'request-1',
+      installmentGroupId: null,
+      installmentNumber: null,
+      installmentCount: null,
+      installmentOriginalTotal: null,
+      createdAt: '',
+      updatedAt: '',
+    };
+    const onUpdateTransaction = vi.fn().mockResolvedValue(undefined);
+    renderPage(
+      <LedgerPage
+        {...baseProps}
+        accounts={[
+          {
+            id: 'account-1',
+            bookId: 'book-1',
+            householdId: 'home-1',
+            ownerUserId: 'user-1',
+            name: '생활비 카드',
+            type: 'card',
+            openingBalance: '0',
+            sortOrder: 0,
+            isActive: true,
+            createdAt: '',
+            updatedAt: '',
+          },
+        ]}
+        books={[book]}
+        categories={[
+          {
+            id: 'category-1',
+            bookId: 'book-1',
+            householdId: 'home-1',
+            type: 'expense' as const,
+            name: '식비',
+            icon: '',
+            color: '#000000',
+            sortOrder: 0,
+            isDefault: false,
+            isActive: true,
+            createdBy: 'user-1',
+            createdAt: '',
+            updatedAt: '',
+          },
+        ]}
+        currentBook={book}
+        transactions={[transaction]}
+        onUpdateTransaction={onUpdateTransaction}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /27.*12,000원/ }));
+    fireEvent.click(screen.getByRole('button', { name: '거래 수정' }));
+    expect(screen.getByRole('heading', { name: '거래 수정' })).toBeInTheDocument();
+    expect(screen.getByDisplayValue('마트')).toBeInTheDocument();
+    fireEvent.change(screen.getByDisplayValue('12000'), { target: { value: '15000' } });
+    fireEvent.change(screen.getByDisplayValue('장보기'), { target: { value: '주말 장보기' } });
+    fireEvent.click(screen.getByRole('button', { name: '수정 저장' }));
+
+    expect(onUpdateTransaction).toHaveBeenCalledWith(
+      'tx-1',
+      expect.objectContaining({ amount: '15000', memo: '주말 장보기' }),
+    );
+  });
+
   it('shows classification management only to a ledger configuration manager', () => {
     const book = {
       id: 'book-1',

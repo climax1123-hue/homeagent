@@ -103,6 +103,7 @@ export function LedgerPage(p: Props) {
   const [mode, setMode] = useState<'month' | 'week'>('month'),
     [selected, setSelected] = useState(today),
     [showForm, setShowForm] = useState(false),
+    [editingTransaction, setEditingTransaction] = useState<LedgerTransaction | null>(null),
     [showSettings, setShowSettings] = useState(false),
     [showBookForm, setShowBookForm] = useState(false),
     [showImport, setShowImport] = useState(false),
@@ -162,6 +163,36 @@ export function LedgerPage(p: Props) {
   }, [visibleTransactions]);
   const dates = mode === 'month' ? monthDates(p.month) : weekDates(selected),
     details = visibleTransactions.filter((x) => ledgerDateKey(x.occurredAt) === selected);
+  const closeTransactionForm = () => {
+    setShowForm(false);
+    setEditingTransaction(null);
+    setFormError('');
+  };
+  const openCreateTransactionForm = () => {
+    setEditingTransaction(null);
+    setOccurredOn(selected);
+    setAmount('');
+    setMerchant('');
+    setMemo('');
+    setInstallments(1);
+    setFormError('');
+    setShowForm(true);
+  };
+  const openEditTransactionForm = (transaction: LedgerTransaction) => {
+    setEditingTransaction(transaction);
+    setType(transaction.type);
+    setAmount(transaction.amount);
+    setOccurredOn(ledgerDateKey(transaction.occurredAt));
+    setAccountId(transaction.accountId);
+    setTransferId(transaction.transferAccountId ?? '');
+    setCategoryId(transaction.categoryId ?? '');
+    setPayerId(transaction.payerUserId);
+    setMerchant(transaction.merchant);
+    setMemo(transaction.memo);
+    setInstallments(1);
+    setFormError('');
+    setShowForm(true);
+  };
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     let value = '';
@@ -192,7 +223,8 @@ export function LedgerPage(p: Props) {
       return;
     }
     try {
-      if (type === 'expense' && installments > 1)
+      if (editingTransaction) await p.onUpdateTransaction(editingTransaction.id, input);
+      else if (type === 'expense' && installments > 1)
         await p.onCreateInstallment({
           ...base,
           total: value,
@@ -204,7 +236,7 @@ export function LedgerPage(p: Props) {
       setMerchant('');
       setMemo('');
       setInstallments(1);
-      setShowForm(false);
+      closeTransactionForm();
       setSelected(occurredOn);
     } catch {
       /* container message */
@@ -264,10 +296,7 @@ export function LedgerPage(p: Props) {
           <button onClick={() => setShowImport(true)}>명세 가져오기</button>
           <button
             className="primary"
-            onClick={() => {
-              setOccurredOn(selected);
-              setShowForm(true);
-            }}
+            onClick={openCreateTransactionForm}
           >
             + 거래 추가
           </button>
@@ -440,6 +469,13 @@ export function LedgerPage(p: Props) {
               </strong>
               <button
                 className="icon-button"
+                aria-label="거래 수정"
+                onClick={() => openEditTransactionForm(x)}
+              >
+                ✎
+              </button>
+              <button
+                className="icon-button"
                 aria-label="거래 삭제"
                 onClick={() => p.onDeleteTransaction(x.id)}
               >
@@ -453,17 +489,17 @@ export function LedgerPage(p: Props) {
         <div
           className="ledger-modal"
           onMouseDown={(e) => {
-            if (e.currentTarget === e.target) setShowForm(false);
+            if (e.currentTarget === e.target) closeTransactionForm();
           }}
         >
           <form className="ledger-form" onSubmit={submit}>
             <div className="ledger-form-head">
-              <h2>거래 추가</h2>
+              <h2>{editingTransaction ? '거래 수정' : '거래 추가'}</h2>
               <button
                 type="button"
                 className="icon-button"
                 aria-label="닫기"
-                onClick={() => setShowForm(false)}
+                onClick={closeTransactionForm}
               >
                 ×
               </button>
@@ -542,7 +578,7 @@ export function LedgerPage(p: Props) {
                 </select>
               </label>
             )}
-            {type === 'expense' && (
+            {type === 'expense' && !editingTransaction && (
               <label>
                 할부
                 <select
@@ -557,6 +593,11 @@ export function LedgerPage(p: Props) {
                   ))}
                 </select>
               </label>
+            )}
+            {editingTransaction?.installmentCount && (
+              <p className="ledger-help">
+                할부 거래는 선택한 {editingTransaction.installmentNumber}회차 내역만 수정됩니다.
+              </p>
             )}
             <label>
               결제자
@@ -586,7 +627,7 @@ export function LedgerPage(p: Props) {
               </p>
             )}
             <button className="primary submit" disabled={!p.accounts.length}>
-              저장
+              {editingTransaction ? '수정 저장' : '저장'}
             </button>
           </form>
         </div>
