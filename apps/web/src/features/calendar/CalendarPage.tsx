@@ -35,7 +35,6 @@ type Props = {
   anchor: Date;
   currentUserId: string;
   commonCodes?: LedgerCommonCode[];
-  error: string;
   eventReminderMinutes: Record<string, number>;
   householdId: string;
   googleBusy: boolean;
@@ -57,6 +56,7 @@ type Props = {
   onSaveOccurrence: (occurrence: CalendarOccurrence, input: CalendarEventInput) => Promise<void>;
   onSaveReminder: (eventId: string, title: string, minutes: number | null) => Promise<void>;
   onViewChange: (view: CalendarView) => void;
+  onFeedback: (type: 'success' | 'error', message: string) => void;
 };
 type Draft = {
   title: string;
@@ -155,10 +155,10 @@ export function CalendarPage(props: Props) {
   const [editing, setEditing] = useState<CalendarEvent | null | 'new'>(null);
   const [editingOccurrence, setEditingOccurrence] = useState<CalendarOccurrence | null>(null);
   const [draft, setDraft] = useState<Draft>(() => defaultDraft());
-  const [formError, setFormError] = useState('');
   const [busy, setBusy] = useState(false);
   const [filter, setFilter] = useState<CalendarFilter>('all');
-  const choices = (key: string) => (props.commonCodes ?? []).filter((item) => item.groupKey === key && item.isActive);
+  const choices = (key: string) =>
+    (props.commonCodes ?? []).filter((item) => item.groupKey === key && item.isActive);
   const currentMonth = Number(toDateKey(props.anchor).slice(5, 7));
   const visibleOccurrences = useMemo(
     () => filterOccurrences(props.occurrences, filter, props.currentUserId),
@@ -177,14 +177,12 @@ export function CalendarPage(props: Props) {
     setEditing('new');
     setEditingOccurrence(null);
     setSelected(null);
-    setFormError('');
   };
   const openEdit = (event: CalendarEvent) => {
     setDraft(draftFor(event, String(props.eventReminderMinutes[event.id] ?? '')));
     setEditing(event);
     setEditingOccurrence(null);
     setSelected(null);
-    setFormError('');
   };
   const openOccurrenceEdit = (occurrence: CalendarOccurrence) => {
     const occurrenceEvent = {
@@ -197,7 +195,6 @@ export function CalendarPage(props: Props) {
     setEditing(occurrence.sourceEvent ?? occurrence.event);
     setEditingOccurrence(occurrence);
     setSelected(null);
-    setFormError('');
   };
   const move = (direction: number) => {
     const next = new Date(props.anchor);
@@ -212,41 +209,40 @@ export function CalendarPage(props: Props) {
 
   async function submit(event: FormEvent) {
     event.preventDefault();
-    setFormError('');
-    const allDayEnd = draft.allDay
-      ? new Date(fromDateKey(draft.end).getTime() + 86_400_000).toISOString()
-      : fromDateTimeLocal(draft.end);
-    const input: CalendarEventInput = {
-      householdId: props.householdId,
-      ownerUserId: editing !== 'new' && editing ? editing.ownerUserId : props.currentUserId,
-      visibility: draft.visibility,
-      title: draft.title.trim(),
-      description: draft.description,
-      location: draft.location,
-      startsAt: draft.allDay
-        ? fromDateKey(draft.start).toISOString()
-        : fromDateTimeLocal(draft.start),
-      endsAt: allDayEnd,
-      allDay: draft.allDay,
-      timezone: 'Asia/Seoul',
-      color: draft.color,
-      recurrence:
-        !editingOccurrence && draft.frequency
-          ? {
-              frequency: draft.frequency,
-              interval: Number(draft.interval),
-              until: draft.endMode === 'until' ? draft.until : null,
-              count: draft.endMode === 'count' ? Number(draft.count) : null,
-            }
-          : null,
-    };
-    const invalid = validateCalendarEvent(input);
-    if (invalid) {
-      setFormError(invalid);
-      return;
-    }
     setBusy(true);
     try {
+      const allDayEnd = draft.allDay
+        ? new Date(fromDateKey(draft.end).getTime() + 86_400_000).toISOString()
+        : fromDateTimeLocal(draft.end);
+      const input: CalendarEventInput = {
+        householdId: props.householdId,
+        ownerUserId: editing !== 'new' && editing ? editing.ownerUserId : props.currentUserId,
+        visibility: draft.visibility,
+        title: draft.title.trim(),
+        description: draft.description,
+        location: draft.location,
+        startsAt: draft.allDay
+          ? fromDateKey(draft.start).toISOString()
+          : fromDateTimeLocal(draft.start),
+        endsAt: allDayEnd,
+        allDay: draft.allDay,
+        timezone: 'Asia/Seoul',
+        color: draft.color,
+        recurrence:
+          !editingOccurrence && draft.frequency
+            ? {
+                frequency: draft.frequency,
+                interval: Number(draft.interval),
+                until: draft.endMode === 'until' ? draft.until : null,
+                count: draft.endMode === 'count' ? Number(draft.count) : null,
+              }
+            : null,
+      };
+      const invalid = validateCalendarEvent(input);
+      if (invalid) {
+        props.onFeedback('error', invalid);
+        return;
+      }
       if (editingOccurrence) {
         await props.onSaveOccurrence(editingOccurrence, input);
       } else {
@@ -274,8 +270,15 @@ export function CalendarPage(props: Props) {
       }
       setEditing(null);
       setEditingOccurrence(null);
+      props.onFeedback(
+        'success',
+        editing === 'new' ? '일정을 정상적으로 추가했습니다.' : '일정을 정상적으로 수정했습니다.',
+      );
     } catch (reason) {
-      setFormError(reason instanceof Error ? reason.message : '일정을 저장하지 못했습니다.');
+      props.onFeedback(
+        'error',
+        reason instanceof Error ? reason.message : '일정을 저장하지 못했습니다.',
+      );
     } finally {
       setBusy(false);
     }
@@ -377,12 +380,6 @@ export function CalendarPage(props: Props) {
           </button>
         )}
       </div>
-      {props.error && (
-        <div className="calendar-alert" role="alert">
-          {props.error}
-          <button onClick={() => void props.onReload()}>다시 시도</button>
-        </div>
-      )}
       {props.loading ? (
         <div className="calendar-loading" aria-busy="true">
           일정을 불러오는 중입니다…
@@ -538,7 +535,10 @@ export function CalendarPage(props: Props) {
                       className="calendar-delete"
                       onClick={() => {
                         if (window.confirm('선택한 이번 일정만 삭제할까요?'))
-                          void props.onCancelOccurrence(selected).then(() => setSelected(null));
+                          void props
+                            .onCancelOccurrence(selected)
+                            .then(() => setSelected(null))
+                            .catch(() => undefined);
                       }}
                     >
                       이번만 삭제
@@ -547,7 +547,10 @@ export function CalendarPage(props: Props) {
                       className="calendar-delete"
                       onClick={() => {
                         if (window.confirm('전체 반복 일정을 삭제할까요?'))
-                          void props.onDelete(selected.event.id).then(() => setSelected(null));
+                          void props
+                            .onDelete(selected.event.id)
+                            .then(() => setSelected(null))
+                            .catch(() => undefined);
                       }}
                     >
                       전체 삭제
@@ -560,7 +563,10 @@ export function CalendarPage(props: Props) {
                       className="calendar-delete"
                       onClick={() => {
                         if (window.confirm('이 일정을 삭제할까요?'))
-                          void props.onDelete(selected.event.id).then(() => setSelected(null));
+                          void props
+                            .onDelete(selected.event.id)
+                            .then(() => setSelected(null))
+                            .catch(() => undefined);
                       }}
                     >
                       삭제
@@ -613,7 +619,11 @@ export function CalendarPage(props: Props) {
                     setDraft({ ...draft, visibility: e.target.value as Draft['visibility'] })
                   }
                 >
-                  {choices('calendar_visibility').map((item)=><option key={item.code} value={item.code}>{item.label}</option>)}
+                  {choices('calendar_visibility').map((item) => (
+                    <option key={item.code} value={item.code}>
+                      {item.label}
+                    </option>
+                  ))}
                 </select>
               </label>
               <label className="calendar-check">
@@ -668,7 +678,11 @@ export function CalendarPage(props: Props) {
                       }
                     >
                       <option value="">반복 안 함</option>
-                      {choices('recurrence_frequency').map((item)=><option key={item.code} value={item.code}>{item.label}</option>)}
+                      {choices('recurrence_frequency').map((item) => (
+                        <option key={item.code} value={item.code}>
+                          {item.label}
+                        </option>
+                      ))}
                     </select>
                   </label>
                   {draft.frequency && (
@@ -694,7 +708,11 @@ export function CalendarPage(props: Props) {
                           setDraft({ ...draft, endMode: e.target.value as Draft['endMode'] })
                         }
                       >
-                        {choices('recurrence_end_mode').map((item)=><option key={item.code} value={item.code}>{item.label}</option>)}
+                        {choices('recurrence_end_mode').map((item) => (
+                          <option key={item.code} value={item.code}>
+                            {item.label}
+                          </option>
+                        ))}
                       </select>
                     </label>
                     {draft.endMode === 'until' && (
@@ -728,7 +746,11 @@ export function CalendarPage(props: Props) {
                     onChange={(e) => setDraft({ ...draft, reminderMinutes: e.target.value })}
                   >
                     <option value="">알림 없음</option>
-                    {choices('calendar_reminder_minutes').map((item)=><option key={item.code} value={item.valueText}>{item.label}</option>)}
+                    {choices('calendar_reminder_minutes').map((item) => (
+                      <option key={item.code} value={item.valueText}>
+                        {item.label}
+                      </option>
+                    ))}
                   </select>
                 </label>
               </>
@@ -753,27 +775,24 @@ export function CalendarPage(props: Props) {
             <fieldset>
               <legend>색상</legend>
               <div className="calendar-colors">
-                {choices('calendar_color').map((item) => item.code as CalendarColor).map((color) => (
-                  <label
-                    key={color}
-                    className={`calendar-color-choice calendar-color-choice--${color}`}
-                  >
-                    <input
-                      checked={draft.color === color}
-                      name="color"
-                      type="radio"
-                      onChange={() => setDraft({ ...draft, color })}
-                    />
-                    <span>{color}</span>
-                  </label>
-                ))}
+                {choices('calendar_color')
+                  .map((item) => item.code as CalendarColor)
+                  .map((color) => (
+                    <label
+                      key={color}
+                      className={`calendar-color-choice calendar-color-choice--${color}`}
+                    >
+                      <input
+                        checked={draft.color === color}
+                        name="color"
+                        type="radio"
+                        onChange={() => setDraft({ ...draft, color })}
+                      />
+                      <span>{color}</span>
+                    </label>
+                  ))}
               </div>
             </fieldset>
-            {formError && (
-              <p className="calendar-form-error" role="alert">
-                {formError}
-              </p>
-            )}
             <div className="calendar-dialog-actions">
               <button
                 type="button"

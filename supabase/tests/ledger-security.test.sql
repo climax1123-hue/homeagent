@@ -44,7 +44,7 @@ select throws_ok($$insert into public.ledger_transactions(book_id,household_id,t
 select is((select balance from public.get_ledger_account_balances('62000000-0000-4000-8000-000000000001') where account_id='63000000-0000-4000-8000-000000000001'),'1300','balance uses integer income and expense movements');
 select is((select income_total from public.get_ledger_month_summary('62000000-0000-4000-8000-000000000001','2026-08-01')),'500','month income summary is text');
 select is((select expense_total from public.get_ledger_month_summary('62000000-0000-4000-8000-000000000001','2026-08-01')),'200','month expense summary is text');
-select lives_ok($$update public.ledger_transactions set deleted_at=now() where id='65000000-0000-4000-8000-000000000002'$$,'admin soft deletes family transaction');
+select lives_ok($$select public.soft_delete_ledger_transaction('65000000-0000-4000-8000-000000000002')$$,'admin soft deletes family transaction through the authorized RPC');
 select is((select expense_total from public.get_ledger_month_summary('62000000-0000-4000-8000-000000000001','2026-08-01')),'0','soft-deleted transaction is excluded');
 
 set local request.jwt.claim.sub='60000000-0000-4000-8000-000000000003';

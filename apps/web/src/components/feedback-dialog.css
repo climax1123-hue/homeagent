@@ -1,0 +1,70 @@
+.feedback-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgb(15 23 42 / 42%);
+  backdrop-filter: blur(2px);
+}
+
+.feedback-dialog {
+  width: min(100%, 360px);
+  padding: 28px;
+  border: 1px solid #dbe3ef;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 24px 70px rgb(15 23 42 / 24%);
+  text-align: center;
+}
+
+.feedback-icon {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 16px;
+  place-items: center;
+  border-radius: 50%;
+  background: #e9f9f0;
+  color: #16834f;
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.feedback-dialog--error .feedback-icon {
+  background: #fff0ef;
+  color: #c8322b;
+}
+
+.feedback-dialog h2 {
+  margin: 0;
+  color: #152033;
+  font-size: 21px;
+}
+.feedback-dialog p {
+  margin: 12px 0 22px;
+  color: #5d6878;
+  line-height: 1.55;
+}
+.feedback-dialog button {
+  width: 100%;
+  min-height: 46px;
+  border: 0;
+  border-radius: 12px;
+  background: #286bea;
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.feedback-dialog--error button {
+  background: #d33b33;
+}
+
+@media (max-width: 480px) {
+  .feedback-dialog {
+    padding: 24px 20px;
+    border-radius: 18px;
+  }
+}

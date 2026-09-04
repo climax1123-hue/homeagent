@@ -209,19 +209,17 @@ export function createLedgerApi(client: SupabaseClient) {
       sortOrder: number,
       userId: string,
     ) {
-      const { error } = await client
-        .from('common_codes')
-        .insert({
-          household_id: householdId,
-          group_key: 'payment_method_type',
-          group_label: '결제수단 유형',
-          code,
-          label: label.trim(),
-          sort_order: sortOrder,
-          is_system: false,
-          is_admin_editable: true,
-          created_by: userId,
-        });
+      const { error } = await client.from('common_codes').insert({
+        household_id: householdId,
+        group_key: 'payment_method_type',
+        group_label: '결제수단 유형',
+        code,
+        label: label.trim(),
+        sort_order: sortOrder,
+        is_system: false,
+        is_admin_editable: true,
+        created_by: userId,
+      });
       ensure(error);
     },
     async updatePaymentMethodCode(id: string, label: string, isActive: boolean, sortOrder: number) {
@@ -440,11 +438,10 @@ export function createLedgerApi(client: SupabaseClient) {
       ensure(error);
       return asString(data);
     },
-    async softDeleteTransaction(id: string, userId: string) {
-      const { error } = await client
-        .from('ledger_transactions')
-        .update({ deleted_at: new Date().toISOString(), updated_by: userId })
-        .eq('id', id);
+    async softDeleteTransaction(id: string) {
+      const { error } = await client.rpc('soft_delete_ledger_transaction', {
+        p_transaction_id: id,
+      });
       ensure(error);
     },
     async commitImport(

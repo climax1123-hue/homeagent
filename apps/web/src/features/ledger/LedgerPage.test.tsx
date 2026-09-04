@@ -14,7 +14,6 @@ const baseProps = {
   canManageConfiguration: true,
   currentBook: null,
   currentUserId: 'user-1',
-  error: '',
   householdId: 'home-1',
   loading: false,
   members: [{ id: 'user-1', name: '나' }],
@@ -39,6 +38,7 @@ const baseProps = {
   onDeleteStatementProfile: vi.fn().mockResolvedValue(undefined),
   onDeleteTransaction: vi.fn().mockResolvedValue(undefined),
   onCreateInstallment: vi.fn().mockResolvedValue(undefined),
+  onFeedback: vi.fn(),
 };
 const renderPage = (page: ReactNode) => render(<MemoryRouter>{page}</MemoryRouter>);
 

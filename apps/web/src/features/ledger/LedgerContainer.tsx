@@ -13,6 +13,7 @@ import {
 } from '@home/shared';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAccess, useAuth } from '../auth/auth';
+import { FeedbackDialog, type Feedback } from '../../components/FeedbackDialog';
 import { createHouseholdApi } from '../household/api/household-api';
 import { createLedgerApi } from './api/ledger-api';
 import { LedgerPage } from './LedgerPage';
@@ -44,7 +45,7 @@ export function LedgerContainer() {
   const [summary, setSummary] = useState(EMPTY_SUMMARY);
   const [balances, setBalances] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [feedback, setFeedback] = useState<Feedback | null>(null);
 
   const loadBooks = useCallback(async () => {
     if (!active) return [];
@@ -73,7 +74,10 @@ export function LedgerContainer() {
         );
         setPaymentCodes(nextCodes);
       } catch (reason) {
-        setError(reason instanceof Error ? reason.message : '가계부를 불러오지 못했습니다.');
+        setFeedback({
+          type: 'error',
+          message: reason instanceof Error ? reason.message : '가계부를 불러오지 못했습니다.',
+        });
       } finally {
         setLoading(false);
       }
@@ -91,7 +95,6 @@ export function LedgerContainer() {
       return;
     }
     setLoading(true);
-    setError('');
     try {
       const range = ledgerMonthRangeUtc(month);
       const [
@@ -119,7 +122,10 @@ export function LedgerContainer() {
       setClassificationRules(nextRules);
       setStatementProfiles(nextProfiles);
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : '가계부를 불러오지 못했습니다.');
+      setFeedback({
+        type: 'error',
+        message: reason instanceof Error ? reason.message : '가계부를 불러오지 못했습니다.',
+      });
     } finally {
       setLoading(false);
     }
@@ -130,13 +136,16 @@ export function LedgerContainer() {
   if (!active || !user) return null;
 
   const currentBook = books.find((book) => book.id === bookId) ?? null;
-  const run = async (action: () => Promise<unknown>) => {
-    setError('');
+  const run = async (action: () => Promise<unknown>, successMessage: string) => {
     try {
       await action();
       await loadLedger();
+      setFeedback({ type: 'success', message: successMessage });
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : '요청을 처리하지 못했습니다.');
+      setFeedback({
+        type: 'error',
+        message: reason instanceof Error ? reason.message : '요청을 처리하지 못했습니다.',
+      });
       throw reason;
     }
   };
@@ -147,65 +156,100 @@ export function LedgerContainer() {
       : active.role === 'admin'),
   );
   return (
-    <LedgerPage
-      accounts={accounts}
-      balances={balances}
-      books={books}
-      categories={categories}
-      classificationRules={classificationRules}
-      statementProfiles={statementProfiles}
-      canManageConfiguration={canManageConfiguration}
-      currentBook={currentBook}
-      currentUserId={user.id}
-      error={error}
-      householdId={active.householdId}
-      loading={loading}
-      members={members}
-      month={month}
-      paymentCodes={paymentCodes}
-      role={active.role}
-      summary={summary}
-      transactions={transactions}
-      onBookChange={setBookId}
-      onMonthChange={setMonth}
-      onCreateBook={async (visibility, name) => {
-        const createdId = await api.createDefaultBook(active.householdId, visibility, name);
-        await loadBooks();
-        setBookId(createdId);
-      }}
-      onCreateAccount={(name, type) =>
-        run(() => api.createAccount(bookId, active.householdId, user.id, name, type))
-      }
-      onCreateCategory={(type, name) =>
-        run(() => api.createCategory(bookId, active.householdId, type, name, user.id))
-      }
-      onCreateTransaction={(input: LedgerTransactionInput) =>
-        run(() => api.createTransaction(input, user.id))
-      }
-      onCreateInstallment={(input: LedgerInstallmentInput) =>
-        run(() => api.createInstallment(input))
-      }
-      onUpdateTransaction={(id, input) => run(() => api.updateTransaction(id, input, user.id))}
-      onCommitImport={async (accountId, fileName, fileFingerprint, rows) => {
-        const count = await api.commitImport(bookId, accountId, fileName, fileFingerprint, rows);
-        await loadLedger();
-        return count;
-      }}
-      onFindImportDuplicates={(accountId, rows) =>
-        api.findImportDuplicates(bookId, accountId, rows)
-      }
-      onCreateClassificationRule={(input) =>
-        run(() => api.createClassificationRule(bookId, active.householdId, input))
-      }
-      onUpdateClassificationRule={(id, priority, isActive) =>
-        run(() => api.updateClassificationRule(id, priority, isActive))
-      }
-      onDeleteClassificationRule={(id) => run(() => api.deleteClassificationRule(id))}
-      onCreateStatementProfile={(input) =>
-        run(() => api.createStatementProfile(bookId, active.householdId, input))
-      }
-      onDeleteStatementProfile={(id) => run(() => api.deleteStatementProfile(id))}
-      onDeleteTransaction={(id) => run(() => api.softDeleteTransaction(id, user.id))}
-    />
+    <>
+      <LedgerPage
+        accounts={accounts}
+        balances={balances}
+        books={books}
+        categories={categories}
+        classificationRules={classificationRules}
+        statementProfiles={statementProfiles}
+        canManageConfiguration={canManageConfiguration}
+        currentBook={currentBook}
+        currentUserId={user.id}
+        householdId={active.householdId}
+        loading={loading}
+        members={members}
+        month={month}
+        paymentCodes={paymentCodes}
+        role={active.role}
+        summary={summary}
+        transactions={transactions}
+        onBookChange={setBookId}
+        onMonthChange={setMonth}
+        onCreateBook={async (visibility, name) => {
+          try {
+            const createdId = await api.createDefaultBook(active.householdId, visibility, name);
+            await loadBooks();
+            setBookId(createdId);
+            setFeedback({ type: 'success', message: '새 가계부를 만들었습니다.' });
+          } catch (reason) {
+            setFeedback({
+              type: 'error',
+              message: reason instanceof Error ? reason.message : '가계부를 만들지 못했습니다.',
+            });
+            throw reason;
+          }
+        }}
+        onCreateAccount={(name, type) =>
+          run(
+            () => api.createAccount(bookId, active.householdId, user.id, name, type),
+            '결제수단을 추가했습니다.',
+          )
+        }
+        onCreateCategory={(type, name) =>
+          run(
+            () => api.createCategory(bookId, active.householdId, type, name, user.id),
+            '카테고리를 추가했습니다.',
+          )
+        }
+        onCreateTransaction={(input: LedgerTransactionInput) =>
+          run(() => api.createTransaction(input, user.id), '거래를 정상적으로 추가했습니다.')
+        }
+        onCreateInstallment={(input: LedgerInstallmentInput) =>
+          run(() => api.createInstallment(input), '할부 거래를 정상적으로 추가했습니다.')
+        }
+        onUpdateTransaction={(id, input) =>
+          run(() => api.updateTransaction(id, input, user.id), '거래를 정상적으로 수정했습니다.')
+        }
+        onCommitImport={async (accountId, fileName, fileFingerprint, rows) => {
+          const count = await api.commitImport(bookId, accountId, fileName, fileFingerprint, rows);
+          await loadLedger();
+          return count;
+        }}
+        onFindImportDuplicates={(accountId, rows) =>
+          api.findImportDuplicates(bookId, accountId, rows)
+        }
+        onCreateClassificationRule={(input) =>
+          run(
+            () => api.createClassificationRule(bookId, active.householdId, input),
+            '분류 규칙을 추가했습니다.',
+          )
+        }
+        onUpdateClassificationRule={(id, priority, isActive) =>
+          run(
+            () => api.updateClassificationRule(id, priority, isActive),
+            '분류 규칙을 수정했습니다.',
+          )
+        }
+        onDeleteClassificationRule={(id) =>
+          run(() => api.deleteClassificationRule(id), '분류 규칙을 삭제했습니다.')
+        }
+        onCreateStatementProfile={(input) =>
+          run(
+            () => api.createStatementProfile(bookId, active.householdId, input),
+            '명세서 양식을 저장했습니다.',
+          )
+        }
+        onDeleteStatementProfile={(id) =>
+          run(() => api.deleteStatementProfile(id), '명세서 양식을 삭제했습니다.')
+        }
+        onDeleteTransaction={(id) =>
+          run(() => api.softDeleteTransaction(id), '거래를 정상적으로 삭제했습니다.')
+        }
+        onFeedback={(type, message) => setFeedback({ type, message })}
+      />
+      <FeedbackDialog feedback={feedback} onClose={() => setFeedback(null)} />
+    </>
   );
 }

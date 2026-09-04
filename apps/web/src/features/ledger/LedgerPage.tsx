@@ -35,7 +35,6 @@ type Props = {
   canManageConfiguration: boolean;
   currentBook: LedgerBook | null;
   currentUserId: string;
-  error: string;
   householdId: string;
   loading: boolean;
   members: Array<{ id: string; name: string }>;
@@ -75,6 +74,7 @@ type Props = {
   ): Promise<unknown>;
   onDeleteStatementProfile(id: string): Promise<unknown>;
   onDeleteTransaction(id: string): Promise<unknown>;
+  onFeedback(type: 'success' | 'error', message: string): void;
 };
 const LABELS = { income: '수입', expense: '지출', transfer: '이체' } as const;
 const today = () =>
@@ -120,8 +120,7 @@ export function LedgerPage(p: Props) {
     [payerId, setPayerId] = useState(p.currentUserId),
     [merchant, setMerchant] = useState(''),
     [memo, setMemo] = useState(''),
-    [installments, setInstallments] = useState(1),
-    [formError, setFormError] = useState('');
+    [installments, setInstallments] = useState(1);
   const [accountName, setAccountName] = useState(''),
     [accountType, setAccountType] = useState('cash'),
     [categoryName, setCategoryName] = useState(''),
@@ -166,7 +165,6 @@ export function LedgerPage(p: Props) {
   const closeTransactionForm = () => {
     setShowForm(false);
     setEditingTransaction(null);
-    setFormError('');
   };
   const openCreateTransactionForm = () => {
     setEditingTransaction(null);
@@ -175,7 +173,6 @@ export function LedgerPage(p: Props) {
     setMerchant('');
     setMemo('');
     setInstallments(1);
-    setFormError('');
     setShowForm(true);
   };
   const openEditTransactionForm = (transaction: LedgerTransaction) => {
@@ -190,7 +187,6 @@ export function LedgerPage(p: Props) {
     setMerchant(transaction.merchant);
     setMemo(transaction.memo);
     setInstallments(1);
-    setFormError('');
     setShowForm(true);
   };
   const submit = async (e: FormEvent) => {
@@ -201,7 +197,7 @@ export function LedgerPage(p: Props) {
       ledgerDateToUtc(occurredOn);
       if (installments > 1) splitInstallmentAmounts(value, installments);
     } catch (r) {
-      setFormError(r instanceof Error ? r.message : '입력값을 확인해 주세요.');
+      p.onFeedback('error', r instanceof Error ? r.message : '입력값을 확인해 주세요.');
       return;
     }
     const base = {
@@ -219,7 +215,7 @@ export function LedgerPage(p: Props) {
     const input: LedgerTransactionInput = { ...base, type, clientRequestId: crypto.randomUUID() },
       problem = validateLedgerTransaction(input);
     if (problem) {
-      setFormError(problem);
+      p.onFeedback('error', problem);
       return;
     }
     try {
@@ -294,19 +290,11 @@ export function LedgerPage(p: Props) {
             <button onClick={() => setShowClassification(true)}>분류 규칙 관리</button>
           )}
           <button onClick={() => setShowImport(true)}>명세 가져오기</button>
-          <button
-            className="primary"
-            onClick={openCreateTransactionForm}
-          >
+          <button className="primary" onClick={openCreateTransactionForm}>
             + 거래 추가
           </button>
         </div>
       </header>
-      {p.error && (
-        <p className="ledger-error" role="alert">
-          {p.error}
-        </p>
-      )}
       <div className="ledger-summary">
         <article>
           <span>이번 달 수입</span>
@@ -621,11 +609,6 @@ export function LedgerPage(p: Props) {
               메모
               <textarea maxLength={500} value={memo} onChange={(e) => setMemo(e.target.value)} />
             </label>
-            {formError && (
-              <p className="ledger-error" role="alert">
-                {formError}
-              </p>
-            )}
             <button className="primary submit" disabled={!p.accounts.length}>
               {editingTransaction ? '수정 저장' : '저장'}
             </button>

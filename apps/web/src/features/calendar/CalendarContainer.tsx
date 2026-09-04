@@ -8,6 +8,7 @@ import type {
 } from '@home/shared';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAccess, useAuth } from '../auth/auth';
+import { FeedbackDialog, type Feedback } from '../../components/FeedbackDialog';
 import { createHouseholdApi } from '../household/api/household-api';
 import { createCalendarApi } from './api/calendar-api';
 import { createGoogleCalendarApi, type GoogleCalendarConnection } from './api/google-calendar-api';
@@ -28,7 +29,7 @@ export function CalendarContainer() {
   const [exceptions, setExceptions] = useState<CalendarEventException[]>([]);
   const [eventReminderMinutes, setEventReminderMinutes] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [googleConnection, setGoogleConnection] = useState<GoogleCalendarConnection | null>(null);
   const [googleBusy, setGoogleBusy] = useState(false);
   const api = useMemo(() => createCalendarApi(client), [client]);
@@ -40,7 +41,6 @@ export function CalendarContainer() {
   const load = useCallback(async () => {
     if (!active) return;
     setLoading(true);
-    setError('');
     try {
       const [nextEvents, nextMembers, nextGoogleConnection, nextReminderMinutes, nextCodes] =
         await Promise.all([
@@ -48,7 +48,12 @@ export function CalendarContainer() {
           householdApi.listMembers(active.householdId),
           googleApi.getConnection(),
           notificationApi.listEventReminderMinutes(),
-          client.from('common_codes').select('*').eq('household_id', active.householdId).eq('is_active', true).order('sort_order'),
+          client
+            .from('common_codes')
+            .select('*')
+            .eq('household_id', active.householdId)
+            .eq('is_active', true)
+            .order('sort_order'),
         ]);
       const nextExceptions = await api.listExceptions(
         nextEvents.filter((event) => event.recurrence).map((event) => event.id),
@@ -61,13 +66,30 @@ export function CalendarContainer() {
       setGoogleConnection(nextGoogleConnection);
       setEventReminderMinutes(nextReminderMinutes);
       if (nextCodes.error) throw new Error('공통코드를 불러오지 못했습니다.');
-      setCommonCodes((nextCodes.data ?? []).map((row) => ({ id:String(row.id), householdId:String(row.household_id), groupKey:String(row.group_key), groupLabel:String(row.group_label), code:String(row.code), valueText:row.value_text == null ? undefined : String(row.value_text), label:String(row.label), sortOrder:Number(row.sort_order), isSystem:Boolean(row.is_system), isAdminEditable:Boolean(row.is_admin_editable), isActive:Boolean(row.is_active) })));
+      setCommonCodes(
+        (nextCodes.data ?? []).map((row) => ({
+          id: String(row.id),
+          householdId: String(row.household_id),
+          groupKey: String(row.group_key),
+          groupLabel: String(row.group_label),
+          code: String(row.code),
+          valueText: row.value_text == null ? undefined : String(row.value_text),
+          label: String(row.label),
+          sortOrder: Number(row.sort_order),
+          isSystem: Boolean(row.is_system),
+          isAdminEditable: Boolean(row.is_admin_editable),
+          isActive: Boolean(row.is_active),
+        })),
+      );
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : '일정을 불러오지 못했습니다.');
+      setFeedback({
+        type: 'error',
+        message: reason instanceof Error ? reason.message : '일정을 불러오지 못했습니다.',
+      });
     } finally {
       setLoading(false);
     }
-  }, [active, api, googleApi, householdApi, notificationApi, range.end, range.start]);
+  }, [active, api, client, googleApi, householdApi, notificationApi, range.end, range.start]);
 
   useEffect(() => {
     void load();
@@ -83,22 +105,43 @@ export function CalendarContainer() {
     await load();
     return saved.id;
   };
-  const occurrenceAction = async (action: () => Promise<void>) => {
-    await action();
-    await load();
-  };
-  const remove = async (id: string) => {
-    await api.deleteEvent(id);
-    await load();
-  };
-  const googleAction = async (action: () => Promise<unknown>) => {
-    setGoogleBusy(true);
-    setError('');
+  const occurrenceAction = async (action: () => Promise<void>, successMessage: string) => {
     try {
       await action();
       await load();
+      setFeedback({ type: 'success', message: successMessage });
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'Google Calendar 요청에 실패했습니다.');
+      setFeedback({
+        type: 'error',
+        message: reason instanceof Error ? reason.message : '일정 요청을 처리하지 못했습니다.',
+      });
+      throw reason;
+    }
+  };
+  const remove = async (id: string) => {
+    try {
+      await api.deleteEvent(id);
+      await load();
+      setFeedback({ type: 'success', message: '일정을 정상적으로 삭제했습니다.' });
+    } catch (reason) {
+      setFeedback({
+        type: 'error',
+        message: reason instanceof Error ? reason.message : '일정을 삭제하지 못했습니다.',
+      });
+      throw reason;
+    }
+  };
+  const googleAction = async (action: () => Promise<unknown>, successMessage: string) => {
+    setGoogleBusy(true);
+    try {
+      await action();
+      await load();
+      setFeedback({ type: 'success', message: successMessage });
+    } catch (reason) {
+      setFeedback({
+        type: 'error',
+        message: reason instanceof Error ? reason.message : 'Google Calendar 요청에 실패했습니다.',
+      });
     } finally {
       setGoogleBusy(false);
     }
@@ -110,7 +153,6 @@ export function CalendarContainer() {
         anchor={anchor}
         currentUserId={user.id}
         commonCodes={commonCodes}
-        error={error}
         eventReminderMinutes={eventReminderMinutes}
         householdId={active.householdId}
         googleBusy={googleBusy}
@@ -121,46 +163,63 @@ export function CalendarContainer() {
         onAnchorChange={setAnchor}
         onDelete={remove}
         onCancelOccurrence={(occurrence) =>
-          occurrenceAction(() =>
-            api.cancelOccurrence(
-              occurrence.sourceEvent ?? occurrence.event,
-              occurrence.originalStart,
-            ),
+          occurrenceAction(
+            () =>
+              api.cancelOccurrence(
+                occurrence.sourceEvent ?? occurrence.event,
+                occurrence.originalStart,
+              ),
+            '선택한 일정을 삭제했습니다.',
           )
         }
-        onGoogleConnect={() => googleAction(() => googleApi.connect())}
-        onGoogleDisconnect={() => googleAction(() => googleApi.disconnect())}
-        onGoogleSync={(eventId) => googleAction(() => googleApi.syncEvent(eventId))}
+        onGoogleConnect={() =>
+          googleAction(() => googleApi.connect(), 'Google Calendar를 연결했습니다.')
+        }
+        onGoogleDisconnect={() =>
+          googleAction(() => googleApi.disconnect(), 'Google Calendar 연결을 해제했습니다.')
+        }
+        onGoogleSync={(eventId) =>
+          googleAction(() => googleApi.syncEvent(eventId), 'Google Calendar에 일정을 반영했습니다.')
+        }
         onReload={load}
         onRestoreOccurrence={(exceptionId) =>
-          occurrenceAction(() => api.restoreOccurrence(exceptionId))
+          occurrenceAction(
+            () => api.restoreOccurrence(exceptionId),
+            '선택한 일정을 원래대로 복원했습니다.',
+          )
         }
         onSave={save}
         onSaveOccurrence={(occurrence, input) =>
-          occurrenceAction(() =>
-            api.overrideOccurrence(
-              occurrence.sourceEvent ?? occurrence.event,
-              occurrence.originalStart,
-              input,
-            ),
+          occurrenceAction(
+            () =>
+              api.overrideOccurrence(
+                occurrence.sourceEvent ?? occurrence.event,
+                occurrence.originalStart,
+                input,
+              ),
+            '선택한 일정을 수정했습니다.',
           )
         }
         onSaveReminder={(eventId, title, minutes) =>
-          occurrenceAction(() =>
-            notificationApi.saveEventReminder({
-              eventId,
-              householdId: active.householdId,
-              userId: user.id,
-              title,
-              minutes,
-            }),
+          occurrenceAction(
+            () =>
+              notificationApi.saveEventReminder({
+                eventId,
+                householdId: active.householdId,
+                userId: user.id,
+                title,
+                minutes,
+              }),
+            '일정 알림 설정을 저장했습니다.',
           )
         }
+        onFeedback={(type, message) => setFeedback({ type, message })}
         onViewChange={setView}
         role={active.role}
         view={view}
       />
       <NotificationPanel client={client} householdId={active.householdId} userId={user.id} />
+      <FeedbackDialog feedback={feedback} onClose={() => setFeedback(null)} />
     </>
   );
 }
