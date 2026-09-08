@@ -387,7 +387,7 @@ export function CalendarPage(props: Props) {
       ) : props.view === 'month' ? (
         <div className="calendar-month">
           <div className="calendar-weekdays">
-            {'일월화수목금토'.split('').map((day) => (
+            {'월화수목금토일'.split('').map((day) => (
               <span key={day}>{day}</span>
             ))}
           </div>

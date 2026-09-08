@@ -21,13 +21,14 @@ const event: CalendarEvent = {
 };
 
 describe('calendar dates', () => {
-  it('builds a 6-week month grid starting Sunday', () => {
-    const days = monthGrid(new Date('2026-08-15T00:00:00Z'));
+  it('builds a 6-week month grid starting Monday in Seoul', () => {
+    const days = monthGrid(new Date('2026-09-08T03:00:00Z'));
     expect(days).toHaveLength(42);
-    expect(days[0].getUTCDay()).toBe(0);
+    expect(toDateKey(days[0])).toBe('2026-08-31');
+    expect(toDateKey(days[8])).toBe('2026-09-08');
   });
-  it('starts a week on Sunday', () =>
-    expect(startOfWeek(new Date('2026-08-26T03:00:00Z')).getUTCDay()).toBe(0));
+  it('starts a week on Monday in Seoul', () =>
+    expect(toDateKey(startOfWeek(new Date('2026-09-08T03:00:00Z')))).toBe('2026-09-07'));
   it('expands daily recurrence with count', () => {
     const values = expandOccurrences(
       [{ ...event, recurrence: { frequency: 'daily', interval: 1, until: null, count: 3 } }],

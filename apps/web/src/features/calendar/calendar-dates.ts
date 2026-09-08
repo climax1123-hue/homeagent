@@ -28,7 +28,9 @@ export const fromDateTimeLocal = (value: string) =>
 
 export function startOfWeek(date: Date) {
   const local = fromDateKey(toDateKey(date));
-  return new Date(local.getTime() - local.getUTCDay() * DAY_MS);
+  const localWeekday = new Date(`${toDateKey(date)}T12:00:00Z`).getUTCDay();
+  const daysSinceMonday = (localWeekday + 6) % 7;
+  return new Date(local.getTime() - daysSinceMonday * DAY_MS);
 }
 
 export function monthGrid(anchor: Date) {
