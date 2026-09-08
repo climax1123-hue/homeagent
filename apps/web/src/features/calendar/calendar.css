@@ -290,7 +290,10 @@
   font-weight: 800;
   text-align: center;
 }
-.calendar-weekdays span:first-child {
+.calendar-weekdays span:nth-child(6) {
+  color: #276fe8;
+}
+.calendar-weekdays span:nth-child(7) {
   color: #d34a43;
 }
 .calendar-day {
@@ -321,6 +324,12 @@
   background: transparent;
   font-weight: 800;
   cursor: pointer;
+}
+.calendar-day:nth-child(7n + 6) .calendar-day-number {
+  color: #276fe8;
+}
+.calendar-day:nth-child(7n) .calendar-day-number {
+  color: #d34a43;
 }
 .calendar-day--today .calendar-day-number {
   color: white;
