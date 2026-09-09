@@ -104,6 +104,7 @@ export function LedgerPage(p: Props) {
     [selected, setSelected] = useState(today),
     [showForm, setShowForm] = useState(false),
     [editingTransaction, setEditingTransaction] = useState<LedgerTransaction | null>(null),
+    [viewingTransaction, setViewingTransaction] = useState<LedgerTransaction | null>(null),
     [showSettings, setShowSettings] = useState(false),
     [showBookForm, setShowBookForm] = useState(false),
     [showImport, setShowImport] = useState(false),
@@ -176,6 +177,7 @@ export function LedgerPage(p: Props) {
     setShowForm(true);
   };
   const openEditTransactionForm = (transaction: LedgerTransaction) => {
+    setViewingTransaction(null);
     setEditingTransaction(transaction);
     setType(transaction.type);
     setAmount(transaction.amount);
@@ -442,7 +444,11 @@ export function LedgerPage(p: Props) {
               <div className={`ledger-kind ${x.type}`}>
                 {x.type === 'income' ? '＋' : x.type === 'expense' ? '－' : '↔'}
               </div>
-              <div className="ledger-row-main">
+              <button
+                className="ledger-row-main ledger-row-detail-trigger"
+                aria-label={`${x.merchant || categoryNames.get(x.categoryId ?? '') || LABELS[x.type]} 거래 상세`}
+                onClick={() => setViewingTransaction(x)}
+              >
                 <strong>
                   {x.merchant || categoryNames.get(x.categoryId ?? '') || LABELS[x.type]}
                   {x.installmentCount ? ` · ${x.installmentNumber}/${x.installmentCount}회` : ''}
@@ -450,7 +456,7 @@ export function LedgerPage(p: Props) {
                 <span>
                   {accountNames.get(x.accountId)} · {memberNames.get(x.payerUserId) ?? '가족'}
                 </span>
-              </div>
+              </button>
               <strong className={x.type}>
                 {x.type === 'income' ? '+' : x.type === 'expense' ? '-' : ''}
                 {formatMoney(x.amount)}
@@ -465,7 +471,7 @@ export function LedgerPage(p: Props) {
               <button
                 className="icon-button"
                 aria-label="거래 삭제"
-                onClick={() => p.onDeleteTransaction(x.id)}
+                onClick={() => void p.onDeleteTransaction(x.id).catch(() => undefined)}
               >
                 ×
               </button>
@@ -473,6 +479,112 @@ export function LedgerPage(p: Props) {
           ))
         )}
       </div>
+      {viewingTransaction && (
+        <div
+          className="ledger-modal"
+          onMouseDown={(event) => {
+            if (event.currentTarget === event.target) setViewingTransaction(null);
+          }}
+        >
+          <section
+            aria-labelledby="ledger-detail-title"
+            className="ledger-form ledger-transaction-detail"
+            role="dialog"
+          >
+            <div className="ledger-form-head">
+              <div>
+                <p className="ledger-eyebrow">거래 상세</p>
+                <h2 id="ledger-detail-title">
+                  {viewingTransaction.merchant ||
+                    categoryNames.get(viewingTransaction.categoryId ?? '') ||
+                    LABELS[viewingTransaction.type]}
+                </h2>
+              </div>
+              <button
+                type="button"
+                className="icon-button"
+                aria-label="상세 닫기"
+                onClick={() => setViewingTransaction(null)}
+              >
+                ×
+              </button>
+            </div>
+            <strong className={`ledger-detail-amount ${viewingTransaction.type}`}>
+              {viewingTransaction.type === 'income'
+                ? '+'
+                : viewingTransaction.type === 'expense'
+                  ? '-'
+                  : ''}
+              {formatMoney(viewingTransaction.amount)}
+            </strong>
+            <dl className="ledger-detail-list">
+              <div>
+                <dt>거래 유형</dt>
+                <dd>{LABELS[viewingTransaction.type]}</dd>
+              </div>
+              <div>
+                <dt>거래 일자</dt>
+                <dd>{ledgerDateKey(viewingTransaction.occurredAt)}</dd>
+              </div>
+              <div>
+                <dt>결제수단</dt>
+                <dd>{accountNames.get(viewingTransaction.accountId) ?? '-'}</dd>
+              </div>
+              {viewingTransaction.type === 'transfer' && (
+                <div>
+                  <dt>도착 결제수단</dt>
+                  <dd>{accountNames.get(viewingTransaction.transferAccountId ?? '') ?? '-'}</dd>
+                </div>
+              )}
+              <div>
+                <dt>카테고리</dt>
+                <dd>{categoryNames.get(viewingTransaction.categoryId ?? '') ?? '미분류'}</dd>
+              </div>
+              <div>
+                <dt>결제자</dt>
+                <dd>{memberNames.get(viewingTransaction.payerUserId) ?? '가족 구성원'}</dd>
+              </div>
+              <div>
+                <dt>거래처</dt>
+                <dd>{viewingTransaction.merchant || '-'}</dd>
+              </div>
+              <div className="ledger-detail-wide">
+                <dt>메모</dt>
+                <dd>{viewingTransaction.memo || '-'}</dd>
+              </div>
+              {viewingTransaction.installmentCount && (
+                <div>
+                  <dt>할부</dt>
+                  <dd>
+                    {viewingTransaction.installmentNumber}/{viewingTransaction.installmentCount}회
+                  </dd>
+                </div>
+              )}
+              <div>
+                <dt>등록 방식</dt>
+                <dd>{viewingTransaction.source === 'import' ? '명세서 가져오기' : '직접 등록'}</dd>
+              </div>
+              <div>
+                <dt>등록자</dt>
+                <dd>{memberNames.get(viewingTransaction.createdBy) ?? '가족 구성원'}</dd>
+              </div>
+            </dl>
+            <div className="ledger-detail-actions">
+              <button onClick={() => openEditTransactionForm(viewingTransaction)}>수정</button>
+              <button
+                className="ledger-detail-delete"
+                onClick={() => {
+                  const id = viewingTransaction.id;
+                  setViewingTransaction(null);
+                  void p.onDeleteTransaction(id).catch(() => undefined);
+                }}
+              >
+                삭제
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
       {showForm && (
         <div
           className="ledger-modal"

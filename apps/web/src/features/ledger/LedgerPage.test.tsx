@@ -199,7 +199,12 @@ describe('LedgerPage', () => {
     );
 
     fireEvent.click(screen.getByRole('button', { name: /27.*12,000원/ }));
-    fireEvent.click(screen.getByRole('button', { name: '거래 수정' }));
+    fireEvent.click(screen.getByRole('button', { name: '마트 거래 상세' }));
+    expect(screen.getByRole('dialog', { name: '마트' })).toBeInTheDocument();
+    expect(screen.getByText('장보기')).toBeInTheDocument();
+    expect(screen.getByText('식비')).toBeInTheDocument();
+    expect(screen.getByText('직접 등록')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: '수정' }));
     expect(screen.getByRole('heading', { name: '거래 수정' })).toBeInTheDocument();
     expect(screen.getByDisplayValue('마트')).toBeInTheDocument();
     fireEvent.change(screen.getByDisplayValue('12000'), { target: { value: '15000' } });

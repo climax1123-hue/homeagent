@@ -139,6 +139,19 @@
   gap: 4px;
   min-width: 0;
 }
+.ledger-page button.ledger-row-detail-trigger {
+  justify-items: start;
+  min-height: 44px;
+  border: 0;
+  border-radius: 8px;
+  padding: 4px 6px;
+  background: transparent;
+  text-align: left;
+}
+.ledger-page button.ledger-row-detail-trigger:hover,
+.ledger-page button.ledger-row-detail-trigger:focus-visible {
+  background: var(--app-color-primary-soft);
+}
 .ledger-row-main strong,
 .ledger-row-main span {
   overflow: hidden;
@@ -231,6 +244,58 @@
   width: 100%;
   margin-top: 4px;
 }
+.ledger-transaction-detail {
+  width: min(600px, 100%);
+}
+.ledger-detail-amount {
+  font-size: 2rem;
+  text-align: right;
+}
+.ledger-detail-amount.income {
+  color: #16815b;
+}
+.ledger-detail-amount.expense {
+  color: #df4b5f;
+}
+.ledger-detail-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--app-color-border);
+  border-radius: 14px;
+  background: var(--app-color-border);
+}
+.ledger-detail-list div {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  padding: 13px 14px;
+  background: #fff;
+}
+.ledger-detail-list dt {
+  color: var(--app-color-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.ledger-detail-list dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-weight: 700;
+}
+.ledger-detail-list .ledger-detail-wide {
+  grid-column: 1 / -1;
+}
+.ledger-detail-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.ledger-page .ledger-detail-delete {
+  border-color: #f1b7bf;
+  color: #b1263c;
+}
 .ledger-segment {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -294,6 +359,12 @@
     max-height: 92vh;
     border-radius: 22px 22px 0 0;
     padding: 20px;
+  }
+  .ledger-detail-list {
+    grid-template-columns: 1fr;
+  }
+  .ledger-detail-list .ledger-detail-wide {
+    grid-column: auto;
   }
   .ledger-empty {
     margin: 3vh auto;
