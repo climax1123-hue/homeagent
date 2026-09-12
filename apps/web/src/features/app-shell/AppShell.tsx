@@ -2,7 +2,6 @@ import { useEffect, useRef, useState, type RefObject } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAccess, useAuth } from '../auth/auth';
 import {
-  APP_NAV_ITEMS,
   pageTitleFor,
   type AppIconName,
   type AppNavItem,
@@ -257,47 +256,6 @@ export function AppShell() {
         />
       )}
     </div>
-  );
-}
-
-const FEATURES = APP_NAV_ITEMS.filter((item) =>
-  ['calendar', 'ledger', 'ddays', 'goals'].includes(item.id),
-);
-const FEATURE_DESCRIPTIONS: Record<string, string> = {
-  calendar: '가족과 개인 일정을 함께 관리',
-  ledger: '수입·지출 기록과 월간 현황 확인',
-  ddays: '생일과 기념일을 디데이로 관리',
-  goals: '가족과 개인 목표의 진행률 관리',
-};
-
-export function DashboardPage() {
-  return (
-    <section className="app-dashboard" aria-labelledby="dashboard-title">
-      <div className="app-hero">
-        <p className="app-eyebrow">FAMILY DASHBOARD</p>
-        <h2 id="dashboard-title">가족의 오늘을 한곳에서</h2>
-        <p>일정과 생활 기록을 함께 관리해 보세요.</p>
-      </div>
-      <div className="app-feature-grid">
-        {FEATURES.map((item) => (
-          <Link className="app-feature-card" key={item.id} to={item.path}>
-            <AppIcon name={item.icon} />
-            <span>
-              <strong>{item.label}</strong>
-              <small>{FEATURE_DESCRIPTIONS[item.id]}</small>
-            </span>
-            <span aria-hidden="true">→</span>
-          </Link>
-        ))}
-      </div>
-      <section className="app-widget-placeholder">
-        <div>
-          <p className="app-eyebrow">COMING NEXT</p>
-          <h3>우리집 요약</h3>
-        </div>
-        <p>기능별 데이터가 준비되면 다가오는 일정과 월간 가계 현황이 여기에 표시됩니다.</p>
-      </section>
-    </section>
   );
 }
 

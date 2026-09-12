@@ -15,7 +15,8 @@ import {
   useAccess,
   useAuth,
 } from './features/auth/auth';
-import { AppNotFoundPage, AppShell, DashboardPage } from './features/app-shell/AppShell';
+import { AppNotFoundPage, AppShell } from './features/app-shell/AppShell';
+import { DashboardContainer } from './features/dashboard/DashboardContainer';
 import { HouseholdManagementContainer } from './features/household/HouseholdManagementContainer';
 import { HouseholdSettingsContainer } from './features/household/HouseholdSettingsContainer';
 import { CalendarContainer } from './features/calendar/CalendarContainer';
@@ -86,7 +87,7 @@ export function App() {
             <Route path="/access/blocked" element={<AccessStatusPage />} />
             <Route element={<HouseholdRoute />}>
               <Route path="/app" element={<AppShell />}>
-                <Route index element={<DashboardPage />} />
+                <Route index element={<DashboardContainer />} />
                 <Route path="calendar" element={<CalendarContainer />} />
                 <Route path="ledger" element={<LedgerContainer />} />
                 <Route path="ledger/dashboard" element={<LedgerDashboardContainer />} />

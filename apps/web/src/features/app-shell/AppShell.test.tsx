@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { AppNotFoundPage, AppShell, ComingSoonPage, DashboardPage } from './AppShell';
+import { AppNotFoundPage, AppShell, ComingSoonPage } from './AppShell';
 import { pageTitleFor, visibleNavigation } from './app-navigation';
 
 const authMocks = vi.hoisted(() => ({
@@ -24,7 +24,7 @@ function renderShell(initialEntry = '/app') {
       <Routes>
         <Route path="/login" element={<p>로그인 화면</p>} />
         <Route path="/app" element={<AppShell />}>
-          <Route index element={<DashboardPage />} />
+          <Route index element={<p>가족의 오늘을 한곳에서</p>} />
           <Route
             path="calendar"
             element={<ComingSoonPage description="일정 준비 안내" feature="일정" />}
