@@ -15,18 +15,15 @@ import {
   useAccess,
   useAuth,
 } from './features/auth/auth';
-import {
-  AppNotFoundPage,
-  AppShell,
-  ComingSoonPage,
-  DashboardPage,
-} from './features/app-shell/AppShell';
+import { AppNotFoundPage, AppShell, DashboardPage } from './features/app-shell/AppShell';
 import { HouseholdManagementContainer } from './features/household/HouseholdManagementContainer';
 import { HouseholdSettingsContainer } from './features/household/HouseholdSettingsContainer';
 import { CalendarContainer } from './features/calendar/CalendarContainer';
 import { LedgerContainer } from './features/ledger/LedgerContainer';
 import { LedgerDashboardContainer } from './features/ledger/dashboard/LedgerDashboardContainer';
 import { CommonCodesPage } from './features/common-codes/CommonCodesPage';
+import { GoalsContainer } from './features/goals/GoalsContainer';
+import { DdaysContainer } from './features/ddays/DdaysContainer';
 import { PrivacyPage, PublicHomePage } from './features/public/PublicPages';
 import './features/household/household.css';
 import { getSupabaseClient } from './lib/supabase/client';
@@ -93,24 +90,8 @@ export function App() {
                 <Route path="calendar" element={<CalendarContainer />} />
                 <Route path="ledger" element={<LedgerContainer />} />
                 <Route path="ledger/dashboard" element={<LedgerDashboardContainer />} />
-                <Route
-                  path="ddays"
-                  element={
-                    <ComingSoonPage
-                      feature="디데이"
-                      description="가족의 중요한 날을 함께 기억하는 기능을 준비하고 있습니다."
-                    />
-                  }
-                />
-                <Route
-                  path="goals"
-                  element={
-                    <ComingSoonPage
-                      feature="목표"
-                      description="가족과 개인 목표를 기록하고 점검하는 기능을 준비하고 있습니다."
-                    />
-                  }
-                />
+                <Route path="ddays" element={<DdaysContainer />} />
+                <Route path="goals" element={<GoalsContainer />} />
                 <Route path="settings" element={<HouseholdSettingsRoute />} />
                 <Route path="members" element={<MembersRoute />} />
                 <Route path="common-codes" element={<CommonCodesPage />} />

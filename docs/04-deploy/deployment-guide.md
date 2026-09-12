@@ -13,9 +13,9 @@
 - 일정, 반복 일정, 알림 설정
 - Google Calendar 연결과 일정 내보내기
 - 가족/개인 가계부, 명세 가져오기, 자동분류, 분석 대시보드
+- 가족/개인 목표와 진행률 관리
+- 가족/개인 디데이와 매년 반복 기념일 관리
 - 공통코드와 관리자 화면
-
-목표·디데이는 준비 중 화면으로 유지한다.
 
 ## Vercel 설정
 
@@ -27,12 +27,13 @@
 
 ## 배포 후 점검
 
-1. `/login`, `/app`, `/app/calendar`, `/app/ledger` 직접 접속 및 새로고침
+1. `/login`, `/app`, `/app/calendar`, `/app/ledger`, `/app/goals`, `/app/ddays` 직접 접속 및 새로고침
 2. 관리자 로그인과 가족 구성원 초대
 3. 일정 생성·수정·삭제와 구성원 색상 구분
 4. Google Calendar 연결, 내보내기, 연결 해제
 5. 가족 장부와 개인 장부 권한 분리
-6. iPhone Safari와 Android Chrome에서 44px 터치 영역 확인
+6. 가족/개인 목표 및 디데이 생성·수정·삭제 권한 분리
+7. iPhone Safari와 Android Chrome에서 44px 터치 영역 확인
 
 ## 롤백
 

@@ -263,6 +263,12 @@ export function AppShell() {
 const FEATURES = APP_NAV_ITEMS.filter((item) =>
   ['calendar', 'ledger', 'ddays', 'goals'].includes(item.id),
 );
+const FEATURE_DESCRIPTIONS: Record<string, string> = {
+  calendar: '가족과 개인 일정을 함께 관리',
+  ledger: '수입·지출 기록과 월간 현황 확인',
+  ddays: '생일과 기념일을 디데이로 관리',
+  goals: '가족과 개인 목표의 진행률 관리',
+};
 
 export function DashboardPage() {
   return (
@@ -278,7 +284,7 @@ export function DashboardPage() {
             <AppIcon name={item.icon} />
             <span>
               <strong>{item.label}</strong>
-              <small>기능 준비 중 · 화면 미리보기</small>
+              <small>{FEATURE_DESCRIPTIONS[item.id]}</small>
             </span>
             <span aria-hidden="true">→</span>
           </Link>
