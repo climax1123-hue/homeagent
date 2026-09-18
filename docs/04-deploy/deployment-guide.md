@@ -26,6 +26,13 @@
 4. 환경변수는 `environment-vars.md`의 브라우저 공개 3개 값만 등록한다.
 5. Production 배포 후 발급된 HTTPS URL을 Supabase와 Google OAuth 허용 목록에 반영한다.
 
+## Google OAuth 운영 설정
+
+- 가족처럼 100명 미만의 개인 사용자는 Google Auth Platform의 Audience를 `External`, Publishing status를 `In production`으로 운영할 수 있다.
+- 검증하지 않은 Calendar scope를 사용하면 승인 화면에 경고가 표시되고 전체 신규 사용자 100명 제한이 적용된다.
+- `Testing` 상태에서는 등록한 테스트 사용자만 연결할 수 있고 Calendar scope의 refresh token이 동의 후 7일 만료된다.
+- 따라서 가족 실사용 환경은 `In production`으로 게시하고, 경고 화면에서 사용자가 직접 계속 진행하도록 안내한다.
+
 ## 배포 후 점검
 
 1. `/login`, `/app`, `/app/calendar`, `/app/ledger`, `/app/goals`, `/app/ddays` 직접 접속 및 새로고침

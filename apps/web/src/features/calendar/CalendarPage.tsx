@@ -29,6 +29,7 @@ import {
   memberName,
   type CalendarFilter,
 } from './calendar-filters';
+import { groupOccurrencesByDays } from './calendar-grouping';
 import './calendar.css';
 
 type Props = {
@@ -127,25 +128,29 @@ function EventButton({
   members,
   currentUserId,
   onClick,
+  compact = false,
 }: {
   value: CalendarOccurrence;
   members: HouseholdMember[];
   currentUserId: string;
   onClick: () => void;
+  compact?: boolean;
 }) {
   const ownerName = memberName(members, value.event.ownerUserId, currentUserId);
   const ownerColor = memberColorIndex(members, value.event.ownerUserId);
   return (
     <button
-      className={`calendar-event calendar-event--${value.event.color} calendar-owner-${ownerColor}`}
+      className={`calendar-event${compact ? ' calendar-event--compact' : ''} calendar-event--${value.event.color} calendar-owner-${ownerColor}`}
       onClick={onClick}
       title={`${ownerName} · ${value.event.visibility === 'private' ? '개인 일정' : '가족 공유'}`}
     >
-      <span>{formatEventTime(value)}</span>
       <strong>{value.event.title}</strong>
-      <small>
-        {ownerName} · {value.event.visibility === 'private' ? '개인' : '가족'}
-      </small>
+      <span>{formatEventTime(value)}</span>
+      {!compact && (
+        <small>
+          {ownerName} · {value.event.visibility === 'private' ? '개인' : '가족'}
+        </small>
+      )}
     </button>
   );
 }
@@ -164,14 +169,6 @@ export function CalendarPage(props: Props) {
     () => filterOccurrences(props.occurrences, filter, props.currentUserId),
     [filter, props.currentUserId, props.occurrences],
   );
-  const grouped = useMemo(() => {
-    const result = new Map<string, CalendarOccurrence[]>();
-    visibleOccurrences.forEach((value) => {
-      const key = toDateKey(new Date(value.occurrenceStart));
-      result.set(key, [...(result.get(key) ?? []), value]);
-    });
-    return result;
-  }, [visibleOccurrences]);
   const openNew = (date = props.anchor) => {
     setDraft(defaultDraft(date));
     setEditing('new');
@@ -298,6 +295,10 @@ export function CalendarPage(props: Props) {
                 index * 86_400_000,
             ),
         );
+  const grouped = useMemo(
+    () => groupOccurrencesByDays(visibleOccurrences, days),
+    [days, visibleOccurrences],
+  );
   return (
     <section className="calendar-page">
       <div className="calendar-toolbar">
@@ -410,6 +411,7 @@ export function CalendarPage(props: Props) {
                   <div>
                     {values.slice(0, 3).map((value) => (
                       <EventButton
+                        compact
                         currentUserId={props.currentUserId}
                         key={occurrenceKey(value)}
                         members={props.members}

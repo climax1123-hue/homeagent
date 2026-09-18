@@ -373,9 +373,19 @@
   flex: 0 0 auto;
 }
 .calendar-event strong {
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.calendar-event--compact strong {
+  flex: 1 1 auto;
+  order: 1;
+}
+.calendar-event--compact span {
+  order: 2;
+  color: var(--app-color-muted);
+  font-size: 10px;
 }
 .calendar-event--green {
   background: #e3f6e9;
