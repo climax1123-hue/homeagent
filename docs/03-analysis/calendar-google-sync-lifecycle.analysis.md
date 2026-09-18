@@ -20,6 +20,11 @@
 - 전체 프로덕션 빌드 통과
 - 원격 migration과 Edge Functions 배포 완료
 
+## 운영 보완
+
+- 신규 `auto_sync_enabled` 열의 authenticated column-level `SELECT` grant 누락을 발견했다.
+- 후속 migration `20260918020000_grant_google_auto_sync_select.sql`로 보완했다.
+
 ## 일치율
 
 100%

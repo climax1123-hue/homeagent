@@ -22,6 +22,7 @@
 - TypeScript: 통과
 - 프로덕션 빌드: 통과
 - Supabase migration 및 함수 배포: 완료
+- 운영 연결 상태 조회 권한 보완 migration 적용
 
 ## 후속 범위
 
