@@ -31,6 +31,7 @@ Deno.serve(async (request) => {
       } catch {
         /* Local disconnect must remain available when Google is unavailable. */
       }
+      await service.from('calendar_google_event_links').delete().eq('user_id', user.id);
       await service.from('google_calendar_connections').delete().eq('user_id', user.id);
     }
     return json(request, 200, 'DISCONNECTED');

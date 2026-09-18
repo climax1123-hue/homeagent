@@ -211,6 +211,19 @@
   color: var(--app-color-muted);
   font-size: 13px;
 }
+.calendar-google-auto-sync {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 8px;
+  color: #243b5a;
+  font-size: 14px;
+  font-weight: 700;
+}
+.calendar-google-auto-sync input {
+  width: 20px;
+  height: 20px;
+}
 .calendar-google-status button,
 .calendar-google-sync {
   min-height: 44px;
@@ -221,6 +234,23 @@
   background: white;
   font-weight: 800;
   cursor: pointer;
+}
+.calendar-google-sync-state {
+  margin: 10px 0 0;
+  font-size: 13px;
+  font-weight: 800;
+}
+.calendar-google-sync-state--synced {
+  color: #197046;
+}
+.calendar-google-sync-state--pending {
+  color: #8a5a00;
+}
+.calendar-google-sync-state--error {
+  color: #b42318;
+}
+.calendar-google-sync-state--none {
+  color: var(--app-color-muted);
 }
 .calendar-google-status button:disabled,
 .calendar-google-sync:disabled {

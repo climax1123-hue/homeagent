@@ -32,6 +32,12 @@
       "iteration": 1,
       "updatedAt": "2026-08-31",
       "archivedAt": "2026-08-31"
+    },
+    "calendar-google-sync-lifecycle": {
+      "phase": "completed",
+      "matchRate": 100,
+      "iteration": 0,
+      "updatedAt": "2026-09-18"
     }
   }
 }

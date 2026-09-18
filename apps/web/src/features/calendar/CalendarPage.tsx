@@ -11,7 +11,7 @@ import {
   type RecurrenceFrequency,
 } from '@home/shared';
 import { useMemo, useState, type FormEvent } from 'react';
-import type { GoogleCalendarConnection } from './api/google-calendar-api';
+import type { GoogleCalendarConnection, GoogleCalendarSyncState } from './api/google-calendar-api';
 import {
   formatEventTime,
   formatPeriod,
@@ -40,6 +40,7 @@ type Props = {
   householdId: string;
   googleBusy: boolean;
   googleConnection: GoogleCalendarConnection | null;
+  googleSyncStates: Record<string, GoogleCalendarSyncState>;
   loading: boolean;
   members: HouseholdMember[];
   occurrences: CalendarOccurrence[];
@@ -50,10 +51,14 @@ type Props = {
   onCancelOccurrence: (occurrence: CalendarOccurrence) => Promise<void>;
   onGoogleConnect: () => Promise<void>;
   onGoogleDisconnect: () => Promise<void>;
+  onGoogleAutoSyncChange: (enabled: boolean) => Promise<void>;
   onGoogleSync: (eventId: string) => Promise<void>;
   onReload: () => Promise<void>;
   onRestoreOccurrence: (exceptionId: string) => Promise<void>;
-  onSave: (input: CalendarEventInput, id?: string) => Promise<string>;
+  onSave: (
+    input: CalendarEventInput,
+    id?: string,
+  ) => Promise<{ eventId: string; googleSyncFailed: boolean }>;
   onSaveOccurrence: (occurrence: CalendarOccurrence, input: CalendarEventInput) => Promise<void>;
   onSaveReminder: (eventId: string, title: string, minutes: number | null) => Promise<void>;
   onViewChange: (view: CalendarView) => void;
@@ -118,6 +123,15 @@ function draftFor(event: CalendarEvent, reminderMinutes = ''): Draft {
     count: String(event.recurrence?.count ?? 10),
     reminderMinutes,
   };
+}
+
+function googleSyncLabel(state?: GoogleCalendarSyncState) {
+  if (!state) return 'Google 미동기화';
+  if (state.status === 'pending') return 'Google 동기화 중';
+  if (state.status === 'error') return 'Google 동기화 실패';
+  return state.lastSyncedAt
+    ? `Google 동기화 완료 · ${new Date(state.lastSyncedAt).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })}`
+    : 'Google 동기화 완료';
 }
 
 function occurrenceKey(value: CalendarOccurrence) {
@@ -203,10 +217,12 @@ export function CalendarPage(props: Props) {
     selected &&
     (selected.event.ownerUserId === props.currentUserId ||
       (selected.event.visibility === 'family' && props.role === 'admin'));
+  const selectedGoogleSyncState = selected ? props.googleSyncStates[selected.event.id] : undefined;
 
   async function submit(event: FormEvent) {
     event.preventDefault();
     setBusy(true);
+    let googleSyncFailed = false;
     try {
       const allDayEnd = draft.allDay
         ? new Date(fromDateKey(draft.end).getTime() + 86_400_000).toISOString()
@@ -243,13 +259,14 @@ export function CalendarPage(props: Props) {
       if (editingOccurrence) {
         await props.onSaveOccurrence(editingOccurrence, input);
       } else {
-        const eventId = await props.onSave(
+        const result = await props.onSave(
           input,
           editing !== 'new' && editing ? editing.id : undefined,
         );
+        googleSyncFailed = result.googleSyncFailed;
         try {
           await props.onSaveReminder(
-            eventId,
+            result.eventId,
             input.title,
             draft.reminderMinutes === '' ? null : Number(draft.reminderMinutes),
           );
@@ -257,7 +274,7 @@ export function CalendarPage(props: Props) {
           if (editing === 'new') {
             setEditing({
               ...input,
-              id: eventId,
+              id: result.eventId,
               createdAt: new Date().toISOString(),
               updatedAt: new Date().toISOString(),
             });
@@ -268,8 +285,12 @@ export function CalendarPage(props: Props) {
       setEditing(null);
       setEditingOccurrence(null);
       props.onFeedback(
-        'success',
-        editing === 'new' ? '일정을 정상적으로 추가했습니다.' : '일정을 정상적으로 수정했습니다.',
+        googleSyncFailed ? 'error' : 'success',
+        googleSyncFailed
+          ? '일정은 저장했지만 Google 동기화에 실패했습니다. 일정 상세에서 다시 시도해 주세요.'
+          : editing === 'new'
+            ? '일정을 정상적으로 추가했습니다.'
+            : '일정을 정상적으로 수정했습니다.',
       );
     } catch (reason) {
       props.onFeedback(
@@ -370,6 +391,17 @@ export function CalendarPage(props: Props) {
                 : '다시 연결이 필요합니다'
               : '연결하면 내가 만든 일정을 Google에 동기화할 수 있습니다.'}
           </span>
+          {props.googleConnection?.status === 'active' && (
+            <label className="calendar-google-auto-sync">
+              <input
+                checked={props.googleConnection.autoSyncEnabled}
+                disabled={props.googleBusy}
+                onChange={(event) => void props.onGoogleAutoSyncChange(event.target.checked)}
+                type="checkbox"
+              />
+              일정 저장 시 자동 동기화
+            </label>
+          )}
         </div>
         {props.googleConnection?.status === 'active' ? (
           <button disabled={props.googleBusy} onClick={() => void props.onGoogleDisconnect()}>
@@ -496,6 +528,14 @@ export function CalendarPage(props: Props) {
             </p>
             {selected.event.location && <p>장소: {selected.event.location}</p>}
             {selected.event.description && <p>{selected.event.description}</p>}
+            {selected.event.ownerUserId === props.currentUserId && props.googleConnection && (
+              <p
+                className={`calendar-google-sync-state calendar-google-sync-state--${selectedGoogleSyncState?.status ?? 'none'}`}
+              >
+                {googleSyncLabel(selectedGoogleSyncState)}
+                {selectedGoogleSyncState?.lastError ? ' · 다시 시도할 수 있습니다.' : ''}
+              </p>
+            )}
             <a
               className="calendar-google-link"
               href={createGoogleCalendarUrl(selected)}
@@ -511,7 +551,13 @@ export function CalendarPage(props: Props) {
                   disabled={props.googleBusy}
                   onClick={() => void props.onGoogleSync(selected.event.id)}
                 >
-                  {props.googleBusy ? '동기화 중…' : '내 Google Calendar와 동기화'}
+                  {props.googleBusy
+                    ? '동기화 중…'
+                    : selectedGoogleSyncState?.status === 'error'
+                      ? 'Google Calendar 동기화 다시 시도'
+                      : selectedGoogleSyncState?.status === 'synced'
+                        ? 'Google Calendar 다시 동기화'
+                        : '내 Google Calendar와 동기화'}
                 </button>
               )}
             {canEdit && (

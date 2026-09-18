@@ -11,7 +11,11 @@ import { useAccess, useAuth } from '../auth/auth';
 import { FeedbackDialog, type Feedback } from '../../components/FeedbackDialog';
 import { createHouseholdApi } from '../household/api/household-api';
 import { createCalendarApi } from './api/calendar-api';
-import { createGoogleCalendarApi, type GoogleCalendarConnection } from './api/google-calendar-api';
+import {
+  createGoogleCalendarApi,
+  type GoogleCalendarConnection,
+  type GoogleCalendarSyncState,
+} from './api/google-calendar-api';
 import { createNotificationApi } from './api/notification-api';
 import { expandOccurrences, visibleRange } from './calendar-dates';
 import { CalendarPage } from './CalendarPage';
@@ -31,6 +35,9 @@ export function CalendarContainer() {
   const [loading, setLoading] = useState(true);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [googleConnection, setGoogleConnection] = useState<GoogleCalendarConnection | null>(null);
+  const [googleSyncStates, setGoogleSyncStates] = useState<Record<string, GoogleCalendarSyncState>>(
+    {},
+  );
   const [googleBusy, setGoogleBusy] = useState(false);
   const api = useMemo(() => createCalendarApi(client), [client]);
   const householdApi = useMemo(() => createHouseholdApi(client), [client]);
@@ -60,10 +67,14 @@ export function CalendarContainer() {
         range.start,
         range.end,
       );
+      const nextGoogleSyncStates = await googleApi.listSyncStates(
+        nextEvents.map((event) => event.id),
+      );
       setEvents(nextEvents);
       setExceptions(nextExceptions);
       setMembers(nextMembers.filter((member) => member.status === 'active'));
       setGoogleConnection(nextGoogleConnection);
+      setGoogleSyncStates(nextGoogleSyncStates);
       setEventReminderMinutes(nextReminderMinutes);
       if (nextCodes.error) throw new Error('공통코드를 불러오지 못했습니다.');
       setCommonCodes(
@@ -102,8 +113,20 @@ export function CalendarContainer() {
 
   const save = async (input: CalendarEventInput, id?: string) => {
     const saved = id ? await api.updateEvent(id, input) : await api.createEvent(input);
+    let googleSyncFailed = false;
+    if (
+      saved.ownerUserId === user.id &&
+      googleConnection?.status === 'active' &&
+      googleConnection.autoSyncEnabled
+    ) {
+      try {
+        await googleApi.syncEvent(saved.id);
+      } catch {
+        googleSyncFailed = true;
+      }
+    }
     await load();
-    return saved.id;
+    return { eventId: saved.id, googleSyncFailed };
   };
   const occurrenceAction = async (action: () => Promise<void>, successMessage: string) => {
     try {
@@ -120,13 +143,20 @@ export function CalendarContainer() {
   };
   const remove = async (id: string) => {
     try {
+      const event = events.find((candidate) => candidate.id === id);
+      if (event?.ownerUserId === user.id && googleSyncStates[id]) {
+        await googleApi.deleteEvent(id);
+      }
       await api.deleteEvent(id);
       await load();
       setFeedback({ type: 'success', message: '일정을 정상적으로 삭제했습니다.' });
     } catch (reason) {
       setFeedback({
         type: 'error',
-        message: reason instanceof Error ? reason.message : '일정을 삭제하지 못했습니다.',
+        message:
+          reason instanceof Error
+            ? reason.message
+            : '일정을 삭제하지 못했습니다. Google 동기화 상태를 확인해 주세요.',
       });
       throw reason;
     }
@@ -138,6 +168,7 @@ export function CalendarContainer() {
       await load();
       setFeedback({ type: 'success', message: successMessage });
     } catch (reason) {
+      await load();
       setFeedback({
         type: 'error',
         message: reason instanceof Error ? reason.message : 'Google Calendar 요청에 실패했습니다.',
@@ -157,6 +188,7 @@ export function CalendarContainer() {
         householdId={active.householdId}
         googleBusy={googleBusy}
         googleConnection={googleConnection}
+        googleSyncStates={googleSyncStates}
         loading={loading}
         members={members}
         occurrences={occurrences}
@@ -177,6 +209,12 @@ export function CalendarContainer() {
         }
         onGoogleDisconnect={() =>
           googleAction(() => googleApi.disconnect(), 'Google Calendar 연결을 해제했습니다.')
+        }
+        onGoogleAutoSyncChange={(enabled) =>
+          googleAction(
+            () => googleApi.setAutoSync(enabled),
+            enabled ? 'Google 자동 동기화를 켰습니다.' : 'Google 자동 동기화를 껐습니다.',
+          )
         }
         onGoogleSync={(eventId) =>
           googleAction(() => googleApi.syncEvent(eventId), 'Google Calendar에 일정을 반영했습니다.')

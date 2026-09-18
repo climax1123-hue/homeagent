@@ -38,6 +38,15 @@ Google Calendar
 
 ## 동기화 방식
 
+### 현재 운영 범위
+
+- 사용자별 `auto_sync_enabled` 설정을 제공한다.
+- 생성·수정은 로컬 저장을 먼저 완료한 뒤 Google upsert를 수행한다.
+- Google 장애 시 로컬 저장은 유지하고 link를 `error`로 기록한다.
+- 삭제는 Google event 삭제 후 로컬 event를 삭제하며, 실패하면 로컬 event를 보존해 재시도한다.
+- 일정 상세는 `pending`, `synced`, `error`와 마지막 성공 시각을 표시한다.
+- Google에서 로컬로 가져오는 증분 동기화와 webhook은 후속 범위다.
+
 ### 최초 동기화
 
 1. 사용자가 캘린더와 동기화 모드를 선택한다.
