@@ -23,6 +23,7 @@ import { CalendarContainer } from './features/calendar/CalendarContainer';
 import { LedgerContainer } from './features/ledger/LedgerContainer';
 import { LedgerDashboardContainer } from './features/ledger/dashboard/LedgerDashboardContainer';
 import { CommonCodesPage } from './features/common-codes/CommonCodesPage';
+import { ErrorLogsPage } from './features/operations/ErrorLogsPage';
 import { GoalsContainer } from './features/goals/GoalsContainer';
 import { DdaysContainer } from './features/ddays/DdaysContainer';
 import { PrivacyPage, PublicHomePage } from './features/public/PublicPages';
@@ -54,6 +55,12 @@ function HouseholdSettingsRoute() {
       householdId={access.householdId}
     />
   );
+}
+
+function ErrorLogsRoute() {
+  const { access } = useAccess();
+  if (access?.kind !== 'active' || access.role !== 'admin') return <Navigate replace to="/app" />;
+  return <ErrorLogsPage />;
 }
 
 export function App() {
@@ -96,6 +103,7 @@ export function App() {
                 <Route path="settings" element={<HouseholdSettingsRoute />} />
                 <Route path="members" element={<MembersRoute />} />
                 <Route path="common-codes" element={<CommonCodesPage />} />
+                <Route path="error-logs" element={<ErrorLogsRoute />} />
                 <Route path="*" element={<AppNotFoundPage />} />
               </Route>
             </Route>

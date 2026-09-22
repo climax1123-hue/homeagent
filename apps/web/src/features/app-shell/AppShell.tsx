@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type RefObject } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAccess, useAuth } from '../auth/auth';
+import { APP_ERROR_EVENT } from '../../components/FeedbackDialog';
 import {
   pageTitleFor,
   type AppIconName,
@@ -31,6 +32,10 @@ const ICON_PATHS: Record<AppIconName, readonly string[]> = {
     'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2',
     'M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z',
     'M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75',
+  ],
+  errors: [
+    'M12 9v4M12 17h.01',
+    'M10.3 3.6 2.4 18a2 2 0 0 0 1.7 3h15.2a2 2 0 0 0 1.7-3l-7.6-14.4a2 2 0 0 0-3.4 0Z',
   ],
 };
 
@@ -207,6 +212,24 @@ export function AppShell() {
   const more = items.filter((item) => item.placement === 'more');
 
   useEffect(() => setMoreOpen(false), [location.pathname]);
+
+  useEffect(() => {
+    if (!active || !user) return;
+    const recordError = (event: Event) => {
+      const detail = (event as CustomEvent<{ message?: string; route?: string }>).detail;
+      const message = detail?.message?.trim().slice(0, 500);
+      if (!message) return;
+      void client.from('app_error_logs').insert({
+        household_id: active.householdId,
+        user_id: user.id,
+        feature: (detail.route || location.pathname).split('/').filter(Boolean).at(1) || 'app',
+        route: (detail.route || location.pathname).slice(0, 300),
+        user_message: message,
+      });
+    };
+    window.addEventListener(APP_ERROR_EVENT, recordError);
+    return () => window.removeEventListener(APP_ERROR_EVENT, recordError);
+  }, [active, client, location.pathname, user]);
 
   const closeMore = () => {
     setMoreOpen(false);

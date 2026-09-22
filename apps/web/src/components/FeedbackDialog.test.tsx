@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import { FeedbackDialog } from './FeedbackDialog';
+import { APP_ERROR_EVENT, FeedbackDialog } from './FeedbackDialog';
 
 describe('FeedbackDialog', () => {
   it('shows a success message and closes with confirmation', () => {
@@ -18,6 +18,8 @@ describe('FeedbackDialog', () => {
   });
 
   it('announces an error as an alert dialog', () => {
+    const listener = vi.fn();
+    window.addEventListener(APP_ERROR_EVENT, listener);
     render(
       <FeedbackDialog
         feedback={{ type: 'error', message: '일정을 저장하지 못했습니다.' }}
@@ -26,5 +28,7 @@ describe('FeedbackDialog', () => {
     );
 
     expect(screen.getByRole('alertdialog')).toHaveTextContent('일정을 저장하지 못했습니다.');
+    expect(listener).toHaveBeenCalledOnce();
+    window.removeEventListener(APP_ERROR_EVENT, listener);
   });
 });

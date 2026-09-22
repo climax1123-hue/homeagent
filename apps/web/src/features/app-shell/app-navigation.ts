@@ -1,5 +1,5 @@
 export type AppRole = 'admin' | 'member';
-export type AppIconName = 'home' | 'calendar' | 'ledger' | 'dday' | 'goal' | 'settings' | 'members';
+export type AppIconName = 'home' | 'calendar' | 'ledger' | 'dday' | 'goal' | 'settings' | 'members' | 'errors';
 
 export type AppNavItem = {
   id: string;
@@ -37,6 +37,14 @@ export const APP_NAV_ITEMS: readonly AppNavItem[] = [
     label: '공통코드 관리',
     path: '/app/common-codes',
     icon: 'settings',
+    placement: 'more',
+    roles: ['admin'],
+  },
+  {
+    id: 'error-logs',
+    label: '오류 기록',
+    path: '/app/error-logs',
+    icon: 'errors',
     placement: 'more',
     roles: ['admin'],
   },

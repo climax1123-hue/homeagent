@@ -10,8 +10,8 @@ const authMocks = vi.hoisted(() => ({
 
 vi.mock('../auth/auth', () => ({
   useAuth: () => ({
-    client: { auth: { signOut: authMocks.signOut } },
-    user: { email: 'admin@example.test' },
+    client: { auth: { signOut: authMocks.signOut }, from: vi.fn() },
+    user: { id: 'user-test', email: 'admin@example.test' },
   }),
   useAccess: () => ({
     access: { kind: 'active', householdId: 'household-test', role: 'admin' },
@@ -45,6 +45,8 @@ describe('app navigation', () => {
   it('shows member management only to admins', () => {
     expect(visibleNavigation('admin').map((item) => item.id)).toContain('members');
     expect(visibleNavigation('member').map((item) => item.id)).not.toContain('members');
+    expect(visibleNavigation('admin').map((item) => item.id)).toContain('error-logs');
+    expect(visibleNavigation('member').map((item) => item.id)).not.toContain('error-logs');
   });
 
   it('resolves exact home and nested page titles', () => {

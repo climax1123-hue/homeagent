@@ -3,6 +3,8 @@ import './feedback-dialog.css';
 
 export type Feedback = { type: 'success' | 'error'; message: string };
 
+export const APP_ERROR_EVENT = 'homeagent:app-error';
+
 export function FeedbackDialog({
   feedback,
   onClose,
@@ -12,6 +14,13 @@ export function FeedbackDialog({
 }) {
   useEffect(() => {
     if (!feedback) return;
+    if (feedback.type === 'error') {
+      window.dispatchEvent(
+        new CustomEvent(APP_ERROR_EVENT, {
+          detail: { message: feedback.message, route: window.location.pathname },
+        }),
+      );
+    }
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') onClose();
     };
