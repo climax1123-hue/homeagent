@@ -3,7 +3,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
 
-select plan(28);
+select plan(34);
 
 select has_table('public', 'households', 'households table exists');
 select has_table('public', 'household_members', 'household_members table exists');
@@ -71,6 +71,32 @@ values
     '{}'::jsonb,
     now(),
     now()
+  ),
+  (
+    '00000000-0000-0000-0000-000000000000',
+    '10000000-0000-4000-8000-000000000004',
+    'authenticated',
+    'authenticated',
+    'new-admin@example.test',
+    '',
+    now(),
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    '{}'::jsonb,
+    now(),
+    now()
+  ),
+  (
+    '00000000-0000-0000-0000-000000000000',
+    '10000000-0000-4000-8000-000000000005',
+    'authenticated',
+    'authenticated',
+    'unverified@example.test',
+    '',
+    null,
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    '{}'::jsonb,
+    now(),
+    now()
   );
 
 create temporary table household_test_state (
@@ -119,6 +145,47 @@ select is(
   1::bigint,
   'active admin can read household members'
 );
+
+select ok(
+  has_function_privilege('authenticated', 'public.create_my_household(text, text)', 'EXECUTE'),
+  'authenticated users can execute self-service household creation'
+);
+
+select ok(
+  not has_function_privilege('anon', 'public.create_my_household(text, text)', 'EXECUTE'),
+  'anonymous users cannot execute self-service household creation'
+);
+
+set local request.jwt.claim.sub = '10000000-0000-4000-8000-000000000004';
+
+select lives_ok(
+  $$select public.create_my_household('새 가족', '새 관리자')$$,
+  'verified unassigned user creates a household'
+);
+
+select is(
+  (select access_kind from public.get_my_access_context()),
+  'active',
+  'new household creator receives active access'
+);
+
+select throws_ok(
+  $$select public.create_my_household('중복 가족', '새 관리자')$$,
+  'P0001',
+  'ALREADY_HAS_HOUSEHOLD',
+  'user with a current household cannot create another'
+);
+
+set local request.jwt.claim.sub = '10000000-0000-4000-8000-000000000005';
+
+select throws_ok(
+  $$select public.create_my_household('미인증 가족', '미인증 사용자')$$,
+  'P0001',
+  'VERIFIED_USER_REQUIRED',
+  'unverified user cannot create a household'
+);
+
+set local request.jwt.claim.sub = '10000000-0000-4000-8000-000000000001';
 
 reset role;
 

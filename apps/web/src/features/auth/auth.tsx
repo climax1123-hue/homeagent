@@ -12,6 +12,11 @@ import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router-d
 import { createHouseholdApi } from '../household/api/household-api';
 
 export const normalizeEmail = (value: string) => value.trim().toLowerCase();
+export const isHouseholdSetupReady = (householdName: string, displayName: string) =>
+  householdName.trim().length > 0 &&
+  householdName.trim().length <= 80 &&
+  displayName.trim().length > 0 &&
+  displayName.trim().length <= 50;
 export const isAccessResolutionPending = (
   authLoading: boolean,
   userId: string | null,
@@ -224,6 +229,7 @@ export function LoginPage() {
           {busy ? '로그인 중…' : '로그인'}
         </button>
       </form>
+      <Link to="/signup/admin">새 가족 공간 만들기</Link>
     </AuthCard>
   );
 }
@@ -274,11 +280,47 @@ export function InviteSignUpPage() {
   );
 }
 
-export function AdminSignUpDisabledPage() {
+export function AdminSignUpPage() {
+  const { client } = useAuth();
+  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+  async function submit(event: FormEvent) {
+    event.preventDefault();
+    setBusy(true);
+    setError('');
+    const { error: authError } = await client.auth.signUp({
+      email: normalizeEmail(email),
+      password,
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+    });
+    setBusy(false);
+    if (authError) setError('가입을 처리하지 못했습니다. 입력을 확인해 주세요.');
+    else navigate('/auth/check-email', { replace: true });
+  }
   return (
-    <AuthCard title="관리자 가입이 종료되었습니다">
-      <p>최초 관리자 설정이 완료되어 새로운 관리자 계정은 만들 수 없습니다.</p>
-      <p>가족 구성원은 관리자가 보낸 초대 링크로만 가입할 수 있습니다.</p>
+    <AuthCard title="새 가족 공간 만들기">
+      <p>이메일을 인증한 뒤 가족 공간 이름과 내 표시 이름을 설정합니다.</p>
+      <form onSubmit={(event) => void submit(event)}>
+        <Field disabled={busy} label="이메일" type="email" value={email} onChange={setEmail} />
+        <Field
+          disabled={busy}
+          label="비밀번호 (6자 이상)"
+          type="password"
+          value={password}
+          onChange={setPassword}
+        />
+        {error && (
+          <p role="alert" className="form-error">
+            {error}
+          </p>
+        )}
+        <button disabled={busy || password.length < 6} type="submit">
+          {busy ? '가입 중…' : '이메일 인증 시작'}
+        </button>
+      </form>
       <Link to="/login">로그인으로</Link>
     </AuthCard>
   );
@@ -314,6 +356,7 @@ export function AccessStatusPage() {
   const { access, error: accessError, reload } = useAccess();
   const navigate = useNavigate();
   const [name, setName] = useState('');
+  const [householdName, setHouseholdName] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   async function logout() {
@@ -332,6 +375,19 @@ export function AccessStatusPage() {
       navigate('/app', { replace: true });
     } catch {
       setError('초대를 수락하지 못했습니다. 이메일과 초대 상태를 확인해 주세요.');
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function createHousehold() {
+    setBusy(true);
+    setError('');
+    try {
+      await createHouseholdApi(client).createMyHousehold(householdName, name);
+      reload();
+      navigate('/app', { replace: true });
+    } catch {
+      setError('가족 공간을 만들지 못했습니다. 입력을 확인한 뒤 다시 시도해 주세요.');
     } finally {
       setBusy(false);
     }
@@ -363,12 +419,26 @@ export function AccessStatusPage() {
       {access?.kind === 'invited' && (
         <>
           <Field label="표시 이름" type="text" value={name} onChange={setName} />
+          <button disabled={busy || !name.trim()} onClick={() => void accept()} type="button">
+            초대 수락
+          </button>
+        </>
+      )}
+      {access?.kind === 'unassigned' && (
+        <>
+          <Field
+            label="가족 공간 이름"
+            type="text"
+            value={householdName}
+            onChange={setHouseholdName}
+          />
+          <Field label="내 표시 이름" type="text" value={name} onChange={setName} />
           <button
-            disabled={busy || !name.trim()}
-            onClick={() => void accept()}
+            disabled={busy || !isHouseholdSetupReady(householdName, name)}
+            onClick={() => void createHousehold()}
             type="button"
           >
-            초대 수락
+            {busy ? '만드는 중…' : '가족 공간 만들기'}
           </button>
         </>
       )}

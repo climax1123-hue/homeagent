@@ -74,6 +74,8 @@ const DOMAIN_ERROR_CODES = [
   'SELF_MANAGEMENT_FORBIDDEN',
   'REMOVED_MEMBER_REJOIN_BLOCKED',
   'INVITATION_DELIVERY_FAILED',
+  'VERIFIED_USER_REQUIRED',
+  'ALREADY_HAS_HOUSEHOLD',
 ] as const;
 
 function errorCode(message: string | undefined): string {
@@ -121,6 +123,16 @@ function mapInvitation(row: InvitationRow): HouseholdInvitation {
 
 export function createHouseholdApi(client: SupabaseClient) {
   return {
+    async createMyHousehold(householdName: string, displayName: string): Promise<string> {
+      const { data, error } = await client.rpc('create_my_household', {
+        p_household_name: householdName.trim(),
+        p_display_name: displayName.trim(),
+      });
+      ensureNoError(error);
+      if (typeof data !== 'string') throw new HouseholdApiError('INVALID_CREATE_RESPONSE');
+      return data;
+    },
+
     async getAccessContext(): Promise<AccessContext> {
       const { data, error } = await client.rpc('get_my_access_context');
       ensureNoError(error);
