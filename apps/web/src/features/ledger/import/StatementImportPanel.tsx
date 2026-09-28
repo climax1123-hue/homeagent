@@ -85,9 +85,11 @@ export function StatementImportPanel({
     const suggestion = classifyLedgerStatement(row, rules);
     return {
       ...row,
-      categoryId: suggestion?.categoryId ?? null,
+      categoryId: suggestion && !suggestion.requiresReview ? suggestion.categoryId : null,
       classificationRuleId: suggestion?.ruleId,
-      classificationReason: suggestion?.reason,
+      classificationReason: suggestion?.requiresReview
+        ? `${suggestion.reason} · 카테고리를 확인해 주세요`
+        : suggestion?.reason,
     };
   };
   const markDuplicates = async (next: StatementPreview, nextAccountId = accountId) => {

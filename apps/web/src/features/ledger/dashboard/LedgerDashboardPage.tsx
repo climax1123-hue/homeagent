@@ -1,5 +1,6 @@
 import {
   formatMoney,
+  buildLedgerMonthlyRecommendation,
   moneyChangePercent,
   moneyRatioPercent,
   type LedgerBook,
@@ -103,6 +104,7 @@ function Metric({
 
 export function LedgerDashboardPage(p: Props) {
   const d = p.data;
+  const recommendation = d ? buildLedgerMonthlyRecommendation(d) : null;
   const savings =
     d && BigInt(d.summary.incomeTotal) > 0n
       ? moneyRatioPercent(d.summary.netTotal, d.summary.incomeTotal)
@@ -219,6 +221,58 @@ export function LedgerDashboardPage(p: Props) {
               <small>{d.summary.activeDays.toLocaleString()}일 거래</small>
             </Metric>
           </section>
+          {recommendation && (
+            <section className="dashboard-panel dashboard-wide dashboard-recommendation">
+              <div className="dashboard-title">
+                <div>
+                  <h2>다음 달 비용 제안</h2>
+                  <p>최근 최대 3개월 흐름을 정수 금액으로 계산한 참고용 제안입니다.</p>
+                </div>
+                <span className={`recommendation-confidence ${recommendation.confidence}`}>
+                  신뢰도{' '}
+                  {recommendation.confidence === 'high'
+                    ? '높음'
+                    : recommendation.confidence === 'medium'
+                      ? '보통'
+                      : '낮음'}
+                </span>
+              </div>
+              <div className="recommendation-summary">
+                <article>
+                  <span>월평균 지출</span>
+                  <strong>{formatMoney(recommendation.baselineExpense)}</strong>
+                </article>
+                <article>
+                  <span>권장 지출 한도</span>
+                  <strong>{formatMoney(recommendation.suggestedExpenseLimit)}</strong>
+                </article>
+              </div>
+              <div className="recommendation-grid">
+                <div>
+                  <h3>카테고리별 참고 한도</h3>
+                  <ul>
+                    {recommendation.categoryLimits.map((item) => (
+                      <li key={item.id}>
+                        <span>{item.name}</span>
+                        <strong>{formatMoney(item.amount)}</strong>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h3>이번 달 점검 포인트</h3>
+                  <ul className="insight-list">
+                    {recommendation.insights.map((item, index) => (
+                      <li className={item.tone} key={`${item.title}-${index}`}>
+                        <strong>{item.title}</strong>
+                        <span>{item.description}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </section>
+          )}
           <section className="dashboard-panel dashboard-wide">
             <div className="dashboard-title">
               <div>

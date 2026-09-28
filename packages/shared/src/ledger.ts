@@ -104,14 +104,17 @@ export type LedgerClassificationSuggestion = {
   categoryId: string;
   ruleId: string;
   reason: string;
+  confidence: 'high' | 'medium' | 'low';
+  requiresReview: boolean;
 };
 
 export function normalizeClassificationText(value: string): string {
-  return Array.from(value, (character) => {
+  return Array.from(value.normalize('NFKC'), (character) => {
     const code = character.charCodeAt(0);
-    return code < 32 || code === 127 ? ' ' : character;
+    return code < 32 || code === 127 || code === 0x200b || code === 0xfeff ? ' ' : character;
   })
     .join('')
+    .replace(/[\p{P}\p{S}]+/gu, ' ')
     .replace(/\s+/g, ' ')
     .trim()
     .toLocaleLowerCase('ko-KR');
@@ -123,16 +126,16 @@ export function classifyLedgerStatement(
 ): LedgerClassificationSuggestion | null {
   const merchant = normalizeClassificationText(row.merchant);
   const memo = normalizeClassificationText(row.memo);
-  const sorted = [
-    ...rules.filter((rule) => rule.isActive && rule.transactionType === row.type),
-  ].sort(
-    (left, right) =>
-      left.priority - right.priority ||
-      right.keyword.length - left.keyword.length ||
-      left.createdAt.localeCompare(right.createdAt),
-  );
-  for (const rule of sorted) {
+  const matches: Array<{
+    rule: LedgerClassificationRule;
+    field: '거래처' | '메모';
+    normalizedKeyword: string;
+  }> = [];
+  for (const rule of rules.filter(
+    (candidate) => candidate.isActive && candidate.transactionType === row.type,
+  )) {
     const keyword = normalizeClassificationText(rule.keyword);
+    if (!keyword) continue;
     const candidates =
       rule.targetField === 'merchant'
         ? [['거래처', merchant] as const]
@@ -142,14 +145,41 @@ export function classifyLedgerStatement(
     const matched = candidates.find(([, value]) =>
       rule.matchType === 'exact' ? value === keyword : value.includes(keyword),
     );
-    if (matched)
-      return {
-        categoryId: rule.categoryId,
-        ruleId: rule.id,
-        reason: `${matched[0]}에 '${rule.keyword}' ${rule.matchType === 'exact' ? '정확히 일치' : '포함'}`,
-      };
+    if (matched) matches.push({ rule, field: matched[0], normalizedKeyword: keyword });
   }
-  return null;
+  matches.sort(
+    (left, right) =>
+      left.rule.priority - right.rule.priority ||
+      Number(right.rule.matchType === 'exact') - Number(left.rule.matchType === 'exact') ||
+      right.normalizedKeyword.length - left.normalizedKeyword.length ||
+      Number(left.field === '메모') - Number(right.field === '메모') ||
+      left.rule.createdAt.localeCompare(right.rule.createdAt) ||
+      left.rule.id.localeCompare(right.rule.id),
+  );
+  const winner = matches[0];
+  if (!winner) return null;
+  const runnerUp = matches[1];
+  const isEquivalentRank =
+    runnerUp &&
+    runnerUp.rule.priority === winner.rule.priority &&
+    runnerUp.rule.matchType === winner.rule.matchType &&
+    runnerUp.normalizedKeyword.length === winner.normalizedKeyword.length &&
+    runnerUp.field === winner.field;
+  if (isEquivalentRank && runnerUp.rule.categoryId !== winner.rule.categoryId) return null;
+  const compactLength = winner.normalizedKeyword.replaceAll(' ', '').length;
+  const confidence =
+    winner.rule.matchType === 'exact'
+      ? 'high'
+      : compactLength >= 4 || /[가-힣]{2,}/.test(winner.normalizedKeyword)
+        ? 'medium'
+        : 'low';
+  return {
+    categoryId: winner.rule.categoryId,
+    ruleId: winner.rule.id,
+    reason: `${winner.field}에 '${winner.rule.keyword}' ${winner.rule.matchType === 'exact' ? '정확히 일치' : '포함'} · ${confidence === 'high' ? '높은' : confidence === 'medium' ? '보통' : '낮은'} 신뢰도`,
+    confidence,
+    requiresReview: confidence === 'low',
+  };
 }
 
 export type LedgerTransaction = {
@@ -247,6 +277,88 @@ export function moneyChangePercent(current: MoneyString, previous: MoneyString):
   const before = BigInt(previous);
   if (before === 0n) return BigInt(current) === 0n ? 0 : null;
   return Number(((BigInt(current) - before) * 10_000n) / (before < 0n ? -before : before)) / 100;
+}
+
+export type LedgerMonthlyRecommendation = {
+  baselineExpense: MoneyString;
+  suggestedExpenseLimit: MoneyString;
+  confidence: 'low' | 'medium' | 'high';
+  categoryLimits: Array<{ id: string; name: string; amount: MoneyString }>;
+  insights: Array<{ tone: 'info' | 'warning' | 'positive'; title: string; description: string }>;
+};
+
+const roundDownMoney = (value: bigint, unit = 10_000n) =>
+  value <= 0n ? 0n : value < unit ? value : (value / unit) * unit;
+
+export function buildLedgerMonthlyRecommendation(
+  data: LedgerDashboardData,
+): LedgerMonthlyRecommendation {
+  const history = data.monthly.slice(-3);
+  const expenseSum = history.reduce((sum, row) => sum + BigInt(row.expense), 0n);
+  const incomeSum = history.reduce((sum, row) => sum + BigInt(row.income), 0n);
+  const count = BigInt(Math.max(history.length, 1));
+  const baseline = expenseSum / count;
+  const expenseBased = (baseline * 95n) / 100n;
+  const incomeBased = incomeSum > 0n ? (incomeSum / count / 10n) * 8n : expenseBased;
+  const suggested = roundDownMoney(
+    incomeBased > 0n && incomeBased < expenseBased ? incomeBased : expenseBased,
+  );
+  const categoryLimits = data.categories.slice(0, 6).map((category) => {
+    const current = BigInt(category.amount);
+    const previous = BigInt(category.previousAmount);
+    const weighted = previous > 0n ? (current * 2n + previous) / 3n : current;
+    return {
+      id: category.id,
+      name: category.name,
+      amount: roundDownMoney((weighted * 95n) / 100n).toString(),
+    };
+  });
+  const insights: LedgerMonthlyRecommendation['insights'] = [];
+  if (history.length < 3)
+    insights.push({
+      tone: 'info',
+      title: '데이터를 더 모으는 중입니다',
+      description: '3개월 이상 기록하면 제안 금액의 안정성이 높아집니다.',
+    });
+  const expenseChange = moneyChangePercent(
+    data.summary.expenseTotal,
+    data.previousSummary.expenseTotal,
+  );
+  if (expenseChange !== null && expenseChange >= 10)
+    insights.push({
+      tone: 'warning',
+      title: `지출이 이전 기간보다 ${expenseChange.toFixed(1)}% 늘었습니다`,
+      description: '증가한 카테고리를 확인하고 일시적 지출인지 점검해 보세요.',
+    });
+  const rising = data.categories
+    .map((category) => ({
+      ...category,
+      change: moneyChangePercent(category.amount, category.previousAmount),
+    }))
+    .filter(
+      (category) =>
+        category.change !== null && category.change >= 20 && BigInt(category.amount) >= 10_000n,
+    )
+    .slice(0, 2);
+  for (const category of rising)
+    insights.push({
+      tone: 'warning',
+      title: `${category.name} 지출이 증가했습니다`,
+      description: `이전 기간보다 ${category.change?.toFixed(1)}% 증가한 ${formatMoney(category.amount)}입니다.`,
+    });
+  if (BigInt(data.summary.netTotal) > 0n)
+    insights.push({
+      tone: 'positive',
+      title: '선택 기간의 수입이 지출보다 많습니다',
+      description: `${formatMoney(data.summary.netTotal)}의 순증감을 유지하고 있습니다.`,
+    });
+  return {
+    baselineExpense: baseline.toString(),
+    suggestedExpenseLimit: suggested.toString(),
+    confidence: history.length >= 3 ? 'high' : history.length === 2 ? 'medium' : 'low',
+    categoryLimits,
+    insights: insights.slice(0, 4),
+  };
 }
 
 export type LedgerTransactionInput = {

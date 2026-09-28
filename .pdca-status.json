@@ -50,6 +50,12 @@
       "matchRate": 100,
       "iteration": 0,
       "updatedAt": "2026-09-22"
+    },
+    "ledger-intelligence-v2": {
+      "phase": "completed",
+      "matchRate": 100,
+      "iteration": 1,
+      "updatedAt": "2026-09-29"
     }
   }
 }

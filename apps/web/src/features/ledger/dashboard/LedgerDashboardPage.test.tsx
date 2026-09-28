@@ -69,11 +69,14 @@ describe('LedgerDashboardPage', () => {
       </MemoryRouter>,
     );
     expect(screen.getByText('3,000,000원')).toBeInTheDocument();
-    expect(screen.getByText('식비')).toBeInTheDocument();
+    expect(screen.getAllByText('식비')).toHaveLength(2);
     expect(screen.getByText('생활비 카드')).toBeInTheDocument();
     expect(screen.getByText('우리마트')).toBeInTheDocument();
     expect(screen.getByText('넷플릭스')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: '요일별 소비' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: '다음 달 비용 제안' })).toBeInTheDocument();
+    expect(screen.getByText('권장 지출 한도')).toBeInTheDocument();
+    expect(screen.getByText(/식비 지출이 증가했습니다/)).toBeInTheDocument();
   });
 
   it('changes presets and custom date filters', () => {

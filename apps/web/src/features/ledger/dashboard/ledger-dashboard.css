@@ -324,6 +324,90 @@
   font-size: 0.76rem;
   text-align: center;
 }
+.dashboard-recommendation {
+  border-top: 3px solid var(--app-color-primary);
+}
+.recommendation-confidence {
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: var(--app-color-bg);
+  color: var(--app-color-muted);
+  font-size: 0.75rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.recommendation-confidence.high {
+  background: #e7f8f1;
+  color: #16815b;
+}
+.recommendation-confidence.medium {
+  background: #fff7df;
+  color: #8a6500;
+}
+.recommendation-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.recommendation-summary article {
+  display: grid;
+  gap: 6px;
+  border-radius: 14px;
+  background: var(--app-color-bg);
+  padding: 15px;
+}
+.recommendation-summary span {
+  color: var(--app-color-muted);
+  font-size: 0.78rem;
+}
+.recommendation-summary strong {
+  font-size: 1.35rem;
+}
+.recommendation-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+.recommendation-grid h3 {
+  margin: 0 0 10px;
+  font-size: 0.9rem;
+}
+.recommendation-grid ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.recommendation-grid li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid #edf1f5;
+  padding: 8px 0;
+  font-size: 0.82rem;
+}
+.recommendation-grid .insight-list li {
+  display: grid;
+  justify-content: stretch;
+  gap: 4px;
+  border: 0;
+  border-left: 3px solid #8aa2c8;
+  border-radius: 8px;
+  background: var(--app-color-bg);
+  padding: 10px 12px;
+}
+.insight-list li.warning {
+  border-left-color: #e2a52b;
+}
+.insight-list li.positive {
+  border-left-color: #1a9a6c;
+}
+.insight-list li span {
+  color: var(--app-color-muted);
+  font-size: 0.74rem;
+}
 @media (max-width: 1050px) {
   .dashboard-filters {
     grid-template-columns: 1fr 1fr;
@@ -366,6 +450,9 @@
   .dashboard-grid {
     grid-template-columns: 1fr;
     gap: 14px;
+  }
+  .recommendation-grid {
+    grid-template-columns: 1fr;
   }
   .dashboard-panel {
     padding: 16px;
