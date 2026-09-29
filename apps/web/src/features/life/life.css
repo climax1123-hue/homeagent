@@ -21,6 +21,28 @@
   gap: 8px;
   flex-wrap: wrap;
 }
+.life-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.life-summary article {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 72px;
+  border: 1px solid var(--app-color-border);
+  border-radius: 15px;
+  background: #fff;
+  padding: 14px 16px;
+}
+.life-summary span {
+  color: var(--app-color-muted);
+  font-size: 13px;
+}
+.life-summary strong {
+  font-size: 20px;
+}
 .life-button {
   min-height: 44px;
   padding: 0 18px;
@@ -101,6 +123,22 @@
   background: #e9f6ee;
   color: #18794e;
 }
+.life-badge--priority-high {
+  background: #fff0f2;
+  color: #b1263c;
+}
+.life-badge--priority-low {
+  background: #eef3ff;
+  color: #526fd5;
+}
+.life-badge--pinned {
+  background: #fff7df;
+  color: #8a6500;
+}
+.life-deadline--late {
+  color: #c9362b !important;
+  font-weight: 800;
+}
 .life-progress {
   height: 10px;
   overflow: hidden;
@@ -119,12 +157,15 @@
   color: var(--app-color-muted);
   font-size: 13px;
 }
-.life-card-actions {
+.life-card-actions,
+.life-quick-actions {
   display: flex;
   gap: 8px;
   margin-top: auto;
+  flex-wrap: wrap;
 }
-.life-card-actions button {
+.life-card-actions button,
+.life-quick-actions button {
   min-height: 44px;
   flex: 1;
   border: 1px solid var(--app-color-border);
@@ -132,8 +173,27 @@
   background: #fff;
   font-weight: 700;
 }
-.life-card-actions .danger {
+.life-card-actions .danger,
+.life-quick-actions .danger {
   color: #c9362b;
+}
+.life-category-filter {
+  display: grid;
+  grid-template-columns: auto minmax(180px, 260px);
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  color: var(--app-color-muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+.life-category-filter select {
+  min-height: 44px;
+  border: 1px solid var(--app-color-border);
+  border-radius: 11px;
+  background: #fff;
+  padding: 0 12px;
+  font: inherit;
 }
 .life-empty {
   padding: 48px 20px;
@@ -225,6 +285,16 @@
   }
   .life-grid {
     grid-template-columns: 1fr;
+  }
+  .life-summary {
+    grid-template-columns: 1fr;
+  }
+  .life-summary article {
+    min-height: 58px;
+  }
+  .life-category-filter {
+    grid-template-columns: auto 1fr;
+    width: 100%;
   }
   .life-modal {
     padding: 18px;

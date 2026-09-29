@@ -1,7 +1,7 @@
 import { validateDday, type Dday, type DdayInput, type HouseholdRole } from '@home/shared';
 import { useMemo, useState, type FormEvent } from 'react';
 import '../life/life.css';
-import { getDday, seoulToday } from './dday-date';
+import { getDday, getDdayOccurrence, seoulToday } from './dday-date';
 type Props = {
   ddays: Dday[];
   loading: boolean;
@@ -13,21 +13,39 @@ type Props = {
   onDelete(id: string): Promise<unknown>;
   onFeedback(t: 'success' | 'error', m: string): void;
 };
+const categoryLabel = {
+  birthday: '생일',
+  anniversary: '기념일',
+  trip: '여행',
+  event: '행사',
+  other: '기타',
+} as const;
 export function DdaysPage(p: Props) {
   const [filter, setFilter] = useState<'all' | 'family' | 'private'>('all'),
+    [category, setCategory] = useState<'all' | Dday['category']>('all'),
     [editing, setEditing] = useState<Dday | null | undefined>(undefined),
     today = seoulToday();
   const shown = useMemo(
     () =>
       p.ddays
         .filter((x) => filter === 'all' || x.visibility === filter)
+        .filter((x) => category === 'all' || x.category === category)
         .sort(
           (a, b) =>
+            Number(b.isPinned) - Number(a.isPinned) ||
             getDday(a.targetDate, a.repeatYearly, today).days -
-            getDday(b.targetDate, b.repeatYearly, today).days,
+              getDday(b.targetDate, b.repeatYearly, today).days,
         ),
-    [filter, p.ddays, today],
+    [category, filter, p.ddays, today],
   );
+  const upcoming7 = p.ddays.filter((x) => {
+    const days = getDday(x.targetDate, x.repeatYearly, today).days;
+    return days >= 0 && days <= 7;
+  }).length;
+  const upcoming30 = p.ddays.filter((x) => {
+    const days = getDday(x.targetDate, x.repeatYearly, today).days;
+    return days >= 0 && days <= 30;
+  }).length;
   const editable = (x: Dday) =>
     x.ownerUserId === p.currentUserId || (x.visibility === 'family' && p.role === 'admin');
   return (
@@ -41,6 +59,20 @@ export function DdaysPage(p: Props) {
           디데이 추가
         </button>
       </header>
+      <div className="life-summary" aria-label="디데이 요약">
+        <article>
+          <span>7일 이내</span>
+          <strong>{upcoming7}개</strong>
+        </article>
+        <article>
+          <span>30일 이내</span>
+          <strong>{upcoming30}개</strong>
+        </article>
+        <article>
+          <span>중요 표시</span>
+          <strong>{p.ddays.filter((x) => x.isPinned).length}개</strong>
+        </article>
+      </div>
       <div className="life-filters" aria-label="디데이 공개 범위 필터">
         {(['all', 'family', 'private'] as const).map((v) => (
           <button
@@ -52,6 +84,17 @@ export function DdaysPage(p: Props) {
           </button>
         ))}
       </div>
+      <label className="life-category-filter">
+        종류
+        <select value={category} onChange={(e) => setCategory(e.target.value as typeof category)}>
+          <option value="all">전체 종류</option>
+          {Object.entries(categoryLabel).map(([value, label]) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+        </select>
+      </label>
       {p.loading ? (
         <p className="life-loading">디데이를 불러오는 중입니다.</p>
       ) : shown.length === 0 ? (
@@ -74,12 +117,28 @@ export function DdaysPage(p: Props) {
                       {x.visibility === 'family' ? '가족 공개' : '나만 보기'}
                     </span>
                     {x.repeatYearly && <span className="life-badge">매년 반복</span>}
+                    <span className="life-badge">{categoryLabel[x.category]}</span>
+                    {x.isPinned && <span className="life-badge life-badge--pinned">★ 중요</span>}
                   </div>
                 </div>
                 <div className="life-dday-date">{d.effectiveDate}</div>
+                {getDdayOccurrence(x.targetDate, d.effectiveDate, x.repeatYearly) && (
+                  <p>
+                    {getDdayOccurrence(x.targetDate, d.effectiveDate, x.repeatYearly)}회째 맞는 날
+                  </p>
+                )}
                 {x.memo && <p>{x.memo}</p>}
                 {editable(x) && (
-                  <div className="life-card-actions">
+                  <div className="life-quick-actions">
+                    <button
+                      onClick={() =>
+                        void p
+                          .onUpdate(x.id, { ...x, isPinned: !x.isPinned })
+                          .catch(() => undefined)
+                      }
+                    >
+                      {x.isPinned ? '중요 해제' : '중요 표시'}
+                    </button>
                     <button onClick={() => setEditing(x)}>수정</button>
                     <button
                       className="danger"
@@ -133,6 +192,8 @@ function DdayForm({
     [memo, setMemo] = useState(initial?.memo ?? ''),
     [visibility, setVisibility] = useState<Dday['visibility']>(initial?.visibility ?? 'family'),
     [repeatYearly, setRepeatYearly] = useState(initial?.repeatYearly ?? false),
+    [category, setCategory] = useState<Dday['category']>(initial?.category ?? 'other'),
+    [isPinned, setIsPinned] = useState(initial?.isPinned ?? false),
     [saving, setSaving] = useState(false);
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -144,6 +205,8 @@ function DdayForm({
       memo,
       visibility,
       repeatYearly,
+      category,
+      isPinned,
     };
     const error = validateDday(input);
     if (error) {
@@ -190,6 +253,19 @@ function DdayForm({
             <textarea maxLength={500} value={memo} onChange={(e) => setMemo(e.target.value)} />
           </label>
           <label className="life-field">
+            종류
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value as Dday['category'])}
+            >
+              {Object.entries(categoryLabel).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="life-field">
             공개 범위
             <select
               value={visibility}
@@ -206,6 +282,14 @@ function DdayForm({
               onChange={(e) => setRepeatYearly(e.target.checked)}
             />
             매년 같은 날 반복
+          </label>
+          <label className="life-check">
+            <input
+              type="checkbox"
+              checked={isPinned}
+              onChange={(e) => setIsPinned(e.target.checked)}
+            />
+            중요한 날로 상단 고정
           </label>
           <div className="life-form-actions">
             <button type="button" className="life-button life-button--secondary" onClick={onClose}>

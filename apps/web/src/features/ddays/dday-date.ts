@@ -25,3 +25,14 @@ export function getDday(targetDate: string, repeatYearly: boolean, today = seoul
     label: days === 0 ? 'D-DAY' : days > 0 ? `D-${days}` : `D+${Math.abs(days)}`,
   };
 }
+
+export function getDdayOccurrence(
+  targetDate: string,
+  effectiveDate: string,
+  repeatYearly: boolean,
+) {
+  if (!repeatYearly) return null;
+  const firstYear = Number(targetDate.slice(0, 4));
+  const effectiveYear = Number(effectiveDate.slice(0, 4));
+  return Math.max(1, effectiveYear - firstYear + 1);
+}

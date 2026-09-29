@@ -1,5 +1,5 @@
 import { validateGoal, type Goal, type GoalInput, type HouseholdRole } from '@home/shared';
-import { useState, type FormEvent } from 'react';
+import { useMemo, useState, type FormEvent } from 'react';
 import '../life/life.css';
 
 type Props = {
@@ -14,10 +14,39 @@ type Props = {
   onFeedback(t: 'success' | 'error', m: string): void;
 };
 const statusLabel = { active: '진행 중', paused: '잠시 멈춤', completed: '완료' } as const;
+const priorityLabel = { high: '높음', medium: '보통', low: '낮음' } as const;
+const priorityOrder = { high: 0, medium: 1, low: 2 } as const;
+const today = () =>
+  new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Seoul',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date());
+const deadlineLabel = (targetDate: string | null, status: Goal['status']) => {
+  if (!targetDate || status === 'completed') return null;
+  const days = Math.round(
+    (Date.parse(`${targetDate}T00:00:00Z`) - Date.parse(`${today()}T00:00:00Z`)) / 86_400_000,
+  );
+  return days < 0 ? `${Math.abs(days)}일 지연` : days === 0 ? '오늘 마감' : `${days}일 남음`;
+};
 export function GoalsPage(p: Props) {
   const [filter, setFilter] = useState<'all' | Goal['status']>('all'),
     [editing, setEditing] = useState<Goal | null | undefined>(undefined);
-  const shown = p.goals.filter((x) => filter === 'all' || x.status === filter);
+  const shown = useMemo(
+    () =>
+      p.goals
+        .filter((x) => filter === 'all' || x.status === filter)
+        .sort(
+          (a, b) =>
+            Number(a.status === 'completed') - Number(b.status === 'completed') ||
+            priorityOrder[a.priority] - priorityOrder[b.priority] ||
+            (a.targetDate ?? '9999-12-31').localeCompare(b.targetDate ?? '9999-12-31'),
+        ),
+    [filter, p.goals],
+  );
+  const activeCount = p.goals.filter((goal) => goal.status === 'active').length;
+  const completedCount = p.goals.filter((goal) => goal.status === 'completed').length;
   const editable = (x: Goal) =>
     x.ownerUserId === p.currentUserId || (x.visibility === 'family' && p.role === 'admin');
   return (
@@ -31,6 +60,25 @@ export function GoalsPage(p: Props) {
           목표 추가
         </button>
       </header>
+      <div className="life-summary" aria-label="목표 요약">
+        <article>
+          <span>진행 중</span>
+          <strong>{activeCount}개</strong>
+        </article>
+        <article>
+          <span>완료</span>
+          <strong>{completedCount}개</strong>
+        </article>
+        <article>
+          <span>전체 평균</span>
+          <strong>
+            {p.goals.length
+              ? Math.round(p.goals.reduce((sum, goal) => sum + goal.progress, 0) / p.goals.length)
+              : 0}
+            %
+          </strong>
+        </article>
+      </div>
       <div className="life-filters" aria-label="목표 상태 필터">
         {(['all', 'active', 'paused', 'completed'] as const).map((v) => (
           <button
@@ -59,6 +107,9 @@ export function GoalsPage(p: Props) {
                     {x.visibility === 'family' ? '가족 공개' : '나만 보기'}
                   </span>
                   <span className="life-badge">{statusLabel[x.status]}</span>
+                  <span className={`life-badge life-badge--priority-${x.priority}`}>
+                    우선순위 {priorityLabel[x.priority]}
+                  </span>
                 </div>
               </div>
               {x.description && <p>{x.description}</p>}
@@ -69,9 +120,47 @@ export function GoalsPage(p: Props) {
               <div className="life-progress">
                 <span style={{ width: `${x.progress}%` }} />
               </div>
-              {x.targetDate && <p>목표일 {x.targetDate}</p>}
+              {x.targetDate && (
+                <p
+                  className={
+                    deadlineLabel(x.targetDate, x.status)?.includes('지연')
+                      ? 'life-deadline--late'
+                      : ''
+                  }
+                >
+                  목표일 {x.targetDate}{' '}
+                  {deadlineLabel(x.targetDate, x.status) &&
+                    `· ${deadlineLabel(x.targetDate, x.status)}`}
+                </p>
+              )}
               {editable(x) && (
-                <div className="life-card-actions">
+                <div className="life-quick-actions">
+                  {x.status !== 'completed' && (
+                    <>
+                      <button
+                        onClick={() =>
+                          void p
+                            .onUpdate(x.id, {
+                              ...x,
+                              progress: Math.min(100, x.progress + 10),
+                              status: x.progress >= 90 ? 'completed' : x.status,
+                            })
+                            .catch(() => undefined)
+                        }
+                      >
+                        +10%
+                      </button>
+                      <button
+                        onClick={() =>
+                          void p
+                            .onUpdate(x.id, { ...x, progress: 100, status: 'completed' })
+                            .catch(() => undefined)
+                        }
+                      >
+                        완료
+                      </button>
+                    </>
+                  )}
                   <button onClick={() => setEditing(x)}>수정</button>
                   <button
                     className="danger"
@@ -123,6 +212,7 @@ function GoalForm({
     [visibility, setVisibility] = useState<Goal['visibility']>(initial?.visibility ?? 'family'),
     [status, setStatus] = useState<Goal['status']>(initial?.status ?? 'active'),
     [progress, setProgress] = useState(initial?.progress ?? 0),
+    [priority, setPriority] = useState<Goal['priority']>(initial?.priority ?? 'medium'),
     [saving, setSaving] = useState(false);
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -135,6 +225,7 @@ function GoalForm({
       visibility,
       status,
       progress: status === 'completed' ? 100 : progress,
+      priority,
     };
     const error = validateGoal(input);
     if (error) {
@@ -187,6 +278,17 @@ function GoalForm({
             >
               <option value="family">가족 공개</option>
               <option value="private">나만 보기</option>
+            </select>
+          </label>
+          <label className="life-field">
+            우선순위
+            <select
+              value={priority}
+              onChange={(e) => setPriority(e.target.value as Goal['priority'])}
+            >
+              <option value="high">높음</option>
+              <option value="medium">보통</option>
+              <option value="low">낮음</option>
             </select>
           </label>
           <label className="life-field">

@@ -11,6 +11,8 @@ const mapDday = (row: Row): Dday => ({
   targetDate: String(row.target_date),
   memo: String(row.memo ?? ''),
   repeatYearly: Boolean(row.repeat_yearly),
+  category: row.category as Dday['category'],
+  isPinned: Boolean(row.is_pinned),
   createdAt: String(row.created_at),
   updatedAt: String(row.updated_at),
 });
@@ -25,6 +27,8 @@ const values = (input: DdayInput) => ({
   target_date: input.targetDate,
   memo: input.memo,
   repeat_yearly: input.repeatYearly,
+  category: input.category,
+  is_pinned: input.isPinned,
 });
 const editableValues = (input: DdayInput) => ({
   visibility: input.visibility,
@@ -32,6 +36,8 @@ const editableValues = (input: DdayInput) => ({
   target_date: input.targetDate,
   memo: input.memo,
   repeat_yearly: input.repeatYearly,
+  category: input.category,
+  is_pinned: input.isPinned,
 });
 
 export const createDdaysApi = (client: SupabaseClient) => ({

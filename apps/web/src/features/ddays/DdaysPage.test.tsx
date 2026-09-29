@@ -21,7 +21,39 @@ describe('DdaysPage', () => {
     fireEvent.click(screen.getByLabelText('매년 같은 날 반복'));
     fireEvent.click(screen.getByRole('button', { name: '저장' }));
     expect(props.onCreate).toHaveBeenCalledWith(
-      expect.objectContaining({ title: '결혼기념일', visibility: 'private', repeatYearly: true }),
+      expect.objectContaining({
+        title: '결혼기념일',
+        visibility: 'private',
+        repeatYearly: true,
+        category: 'other',
+        isPinned: false,
+      }),
     );
+  });
+  it('pins an editable important date and shows its category', () => {
+    render(
+      <DdaysPage
+        {...props}
+        ddays={[
+          {
+            id: 'd1',
+            householdId: 'home-1',
+            ownerUserId: 'user-1',
+            visibility: 'family',
+            title: '여행',
+            targetDate: '2099-10-10',
+            memo: '',
+            repeatYearly: false,
+            category: 'trip',
+            isPinned: false,
+            createdAt: '',
+            updatedAt: '',
+          },
+        ]}
+      />,
+    );
+    expect(screen.getByText('여행', { selector: '.life-badge' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: '중요 표시' }));
+    expect(props.onUpdate).toHaveBeenCalledWith('d1', expect.objectContaining({ isPinned: true }));
   });
 });

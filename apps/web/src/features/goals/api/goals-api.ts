@@ -12,6 +12,7 @@ const mapGoal = (row: Row): Goal => ({
   targetDate: row.target_date ? String(row.target_date) : null,
   status: row.status as Goal['status'],
   progress: Number(row.progress),
+  priority: row.priority as Goal['priority'],
   createdAt: String(row.created_at),
   updatedAt: String(row.updated_at),
 });
@@ -27,6 +28,7 @@ const values = (input: GoalInput) => ({
   target_date: input.targetDate || null,
   status: input.status,
   progress: input.status === 'completed' ? 100 : input.progress,
+  priority: input.priority,
 });
 const editableValues = (input: GoalInput) => ({
   visibility: input.visibility,
@@ -35,6 +37,7 @@ const editableValues = (input: GoalInput) => ({
   target_date: input.targetDate || null,
   status: input.status,
   progress: input.status === 'completed' ? 100 : input.progress,
+  priority: input.priority,
 });
 
 export const createGoalsApi = (client: SupabaseClient) => ({

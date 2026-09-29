@@ -21,7 +21,12 @@ describe('GoalsPage', () => {
     fireEvent.change(screen.getByLabelText(/진행률/), { target: { value: '40' } });
     fireEvent.click(screen.getByRole('button', { name: '저장' }));
     expect(props.onCreate).toHaveBeenCalledWith(
-      expect.objectContaining({ title: '가족 여행', visibility: 'family', progress: 40 }),
+      expect.objectContaining({
+        title: '가족 여행',
+        visibility: 'family',
+        progress: 40,
+        priority: 'medium',
+      }),
     );
   });
   it('hides controls for another member family goal', () => {
@@ -39,6 +44,7 @@ describe('GoalsPage', () => {
             targetDate: null,
             status: 'active',
             progress: 0,
+            priority: 'high',
             createdAt: '',
             updatedAt: '',
           },
@@ -46,5 +52,27 @@ describe('GoalsPage', () => {
       />,
     );
     expect(screen.queryByRole('button', { name: '수정' })).not.toBeInTheDocument();
+  });
+  it('quickly advances and completes an editable goal', () => {
+    const goal = {
+      id: 'mine',
+      householdId: 'home-1',
+      ownerUserId: 'user-1',
+      visibility: 'family' as const,
+      title: '운동',
+      description: '',
+      targetDate: '2099-12-31',
+      status: 'active' as const,
+      progress: 90,
+      priority: 'high' as const,
+      createdAt: '',
+      updatedAt: '',
+    };
+    render(<GoalsPage {...props} goals={[goal]} />);
+    fireEvent.click(screen.getByRole('button', { name: '+10%' }));
+    expect(props.onUpdate).toHaveBeenCalledWith(
+      'mine',
+      expect.objectContaining({ progress: 100, status: 'completed' }),
+    );
   });
 });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getDday } from './dday-date';
+import { getDday, getDdayOccurrence } from './dday-date';
 
 describe('getDday', () => {
   it('shows future, today, and past labels', () => {
@@ -16,5 +16,9 @@ describe('getDday', () => {
   });
   it('uses February 28 for a leap-day anniversary in a non-leap year', () => {
     expect(getDday('2024-02-29', true, '2026-02-27').effectiveDate).toBe('2026-02-28');
+  });
+  it('counts the yearly occurrence from the original year', () => {
+    expect(getDdayOccurrence('2020-05-01', '2026-05-01', true)).toBe(7);
+    expect(getDdayOccurrence('2020-05-01', '2026-05-01', false)).toBeNull();
   });
 });
